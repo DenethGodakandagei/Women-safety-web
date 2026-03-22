@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+
 import EmergencyContacts from '../components/EmergencyContacts';
 import SOSTracker from '../components/SOSTracker';
 import IncidentReporting from '../components/IncidentReporting';
 import SafetyMap from '../components/SafetyMap';
+import RiskAnalysisCard from '../components/RiskAnalysisCard';
 import api from '../utils/api';
+
 
 // ─── Inline SVG icons ─────────────────────────────────────────────────────────
 const IconShield   = ({ size = 20, color = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill={color}><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/></svg>;
@@ -51,9 +55,13 @@ const ProgressBar = ({ value, color, max = 100 }) => (
 );
 
 // ─── Overview tab (original dashboard cards) ──────────────────────────────────
-const OverviewTab = ({ user, contacts }) => {
+const OverviewTab = ({ user, contacts, userLocation, stats }) => {
   const card = { background: '#fff', borderRadius: 20, padding: '20px', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' };
   const badge = (color) => ({ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color, background: color + '18', padding: '3px 8px', borderRadius: 99 });
+
+  const isSafe = stats.riskLevel === 'Safe' || stats.riskLevel === 'Low';
+  const statusColor = isSafe ? '#34c759' : stats.riskLevel === 'Moderate' ? '#f59e0b' : '#ef4444';
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -63,14 +71,15 @@ const OverviewTab = ({ user, contacts }) => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#34c759', display: 'inline-block', boxShadow: '0 0 6px rgba(52,199,89,0.6)' }}/>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#34c759', letterSpacing: '0.06em' }}>LIVE STATUS: SECURE</span>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: statusColor, display: 'inline-block', boxShadow: `0 0 6px ${statusColor}60` }}/>
+                <span style={{ fontSize: 11, fontWeight: 700, color: statusColor, letterSpacing: '0.06em' }}>LIVE STATUS: {stats.riskLevel.toUpperCase()}</span>
               </div>
-              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#1d1d1f', marginBottom: 8, letterSpacing: '-0.03em' }}>Your location is safe.</h2>
-              <p style={{ fontSize: 14, color: '#86868b', lineHeight: 1.5 }}>We've scanned a 12 block radius in your area.<br/>No unusual activity detected in the last 4 hours.</p>
+              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#1d1d1f', marginBottom: 8, letterSpacing: '-0.03em' }}>Your area is {stats.riskLevel.toLowerCase()}.</h2>
+              <p style={{ fontSize: 14, color: '#86868b', lineHeight: 1.5 }}>Analysis based on your current coordinates.<br/>{stats.activeAlerts} active reports nearby.</p>
             </div>
-            <ScoreRing score={92}/>
+            <ScoreRing score={stats.safetyScore}/>
           </div>
+
         </div>
         <div style={{ ...card, background: 'linear-gradient(145deg, #e05a3a 0%, #c73e20 100%)', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', gap: 12, overflow: 'hidden', position: 'relative' }}>
           <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }}/>
@@ -92,29 +101,27 @@ const OverviewTab = ({ user, contacts }) => {
           </div>
           <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', marginBottom: 4 }}>Real-time Tracking</h3>
           <p style={{ fontSize: 13, color: '#86868b', marginBottom: 14 }}>GPS monitoring active</p>
-          <div style={{ background: 'linear-gradient(135deg,#e8f0e8,#c8dfc8)', borderRadius: 12, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, marginBottom: 12 }}>🗺️</div>
-          <p style={{ fontSize: 12, color: '#86868b' }}>Go to SOS tab for live map</p>
+          <div style={{ background: '#f8f9fa', borderRadius: 12, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 12, overflow: 'hidden', border: '1px solid #f0f0f2', position: 'relative' }}>
+            {userLocation ? (
+              <>
+                <div style={{ position: 'absolute', inset: 0, opacity: 0.3, background: 'repeating-linear-gradient(0deg, transparent, transparent 19px, #e5e7eb 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #e5e7eb 20px)' }}/>
+                <div style={{ textAlign: 'center', zIndex: 1 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#34a8f5', margin: '0 auto 6px', boxShadow: '0 0 0 4px rgba(52,168,245,0.2)', animation: 'pulse 1.5s infinite' }}/>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: '#555', margin: 0 }}>LIVE: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</p>
+                </div>
+                <style>{`@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.9; } 70% { transform: scale(1.1); opacity: 0.3; } 100% { transform: scale(0.95); opacity: 0.9; } }`}</style>
+              </>
+            ) : (
+               <p style={{ fontSize: 13, color: '#999' }}>📍 Resolving GPS...</p>
+            )}
+          </div>
+          <p style={{ fontSize: 12, color: '#86868b' }}>Precision: 10 meters</p>
         </div>
         {/* Risk */}
-        <div style={card}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 10, background: '#fff8ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🔥</div>
-            <span style={badge('#e09a2a')}>PREDICTIVE</span>
-          </div>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', marginBottom: 4 }}>Risk Prediction</h3>
-          <p style={{ fontSize: 13, color: '#86868b', marginBottom: 20 }}>Next 2 hours forecast</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {[['Traffic Congestion','Low','#34c759',28],['Crowd Density','Moderate','#e09a2a',55],['Incident Reports','None','#34c759',5]].map(([label,val,color,pct]) => (
-              <div key={label}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ fontSize: 13, color: '#555' }}>{label}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color }}>{val}</span>
-                </div>
-                <ProgressBar value={pct} color={color}/>
-              </div>
-            ))}
-          </div>
+        <div style={{ ...card, padding: 0, border: 'none', background: 'transparent', boxShadow: 'none' }}>
+          <RiskAnalysisCard lat={userLocation?.lat} lng={userLocation?.lng} />
         </div>
+
         {/* Contacts summary */}
         <div style={card}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -142,13 +149,14 @@ const OverviewTab = ({ user, contacts }) => {
       {/* Stats bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 22px', background: '#fff', borderRadius: 18, border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', gap: 40 }}>
-          {[['TOTAL SAFE TRIPS','1,284'],['COMMUNITY ALERTS','0 Active'],['EMERGENCY CONTACTS', contacts.length || '0']].map(([label, val]) => (
+          {[['TOTAL REPORTS', stats.totalReports],['COMMUNITY ALERTS', stats.activeAlerts + ' Active'],['CONTACTS', contacts.length || '0']].map(([label, val]) => (
             <div key={label}>
               <p style={{ fontSize: 11, color: '#999', fontWeight: 600, letterSpacing: '0.05em', marginBottom: 2 }}>{label}</p>
               <p style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em' }}>{val}</p>
             </div>
           ))}
         </div>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <IconLock size={14}/>
           <span style={{ fontSize: 12, color: '#86868b', fontWeight: 500 }}>Encryption: Active (AES-256)</span>
@@ -160,12 +168,31 @@ const OverviewTab = ({ user, contacts }) => {
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 const Dashboard = () => {
-  const [tab, setTab] = useState('overview'); // overview | contacts | sos | incidents | map
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const currentTab = pathname.split('/').pop() || 'overview';
+
   const [user, setUser] = useState(null);
   const [contacts, setContacts] = useState([]);
+  const [stats, setStats] = useState({ totalReports: 0, activeAlerts: 0, safetyScore: 92, riskLevel: 'Safe' });
+
   // pick-location bridge: incident form → safety map
   const [pickMode, setPickMode]         = useState(false);
   const [pickedLocation, setPickedLocation] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+
+
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      const watchId = navigator.geolocation.watchPosition(pos => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      }, (err) => console.error(err), { enableHighAccuracy: true });
+      return () => navigator.geolocation.clearWatch(watchId);
+    }
+  }, []);
+
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -177,6 +204,35 @@ const Dashboard = () => {
     };
     fetchUser();
   }, []);
+
+  const fetchGlobalStats = async (loc) => {
+    try {
+      // 1. Get incidents count
+      const { data: incData } = await api.get('/incidents');
+      const active = incData.data.incidents.filter(i => i.status === 'active').length;
+      
+      // 2. Get local risk for safety score
+      let score = 92;
+      let level = 'Safe';
+      if (loc) {
+        const { data: riskData } = await api.get('/risk/predict', { params: { lat: loc.lat, lng: loc.lng } });
+        score = 100 - (riskData.data.riskAnalysis?.riskScore || 0);
+        level = riskData.data.riskAnalysis?.riskLevel || 'Safe';
+      }
+
+      setStats({
+        totalReports: incData.data.incidents.length,
+        activeAlerts: active,
+        safetyScore: score,
+        riskLevel: level
+      });
+    } catch {}
+  };
+
+  useEffect(() => {
+    if (userLocation) fetchGlobalStats(userLocation);
+  }, [userLocation]);
+
 
   // Tabs definition
   const tabs = [
@@ -196,8 +252,9 @@ const Dashboard = () => {
         <div style={{ width: 40, height: 40, borderRadius: 12, background: '#e05a3a', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, flexShrink: 0, boxShadow: '0 4px 14px rgba(224,90,58,0.4)' }}>
           <IconShield size={20} color="#fff"/>
         </div>
-        {tabs.map(t => <NavItem key={t.id} icon={t.icon} active={tab === t.id} onClick={() => setTab(t.id)} badge={t.badge}/>)}
+        {tabs.map(t => <NavItem key={t.id} icon={t.icon} active={currentTab === t.id} onClick={() => navigate(`/dashboard/${t.id}`)} badge={t.badge}/>)}
         <div style={{ flex: 1 }}/>
+
         <NavItem icon={<IconSettings size={20}/>} active={false} onClick={() => {}}/>
         <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg,#e05a3a,#c04030)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8, border: '2px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.12)', cursor: 'pointer' }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
@@ -229,60 +286,63 @@ const Dashboard = () => {
         {/* Tab pills */}
         <div style={{ display: 'flex', gap: 6, padding: '14px 28px 0', background: '#f2f2f7' }}>
           {tabs.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{
+            <button key={t.id} onClick={() => navigate(`/dashboard/${t.id}`)} style={{
               display: 'flex', alignItems: 'center', gap: 7,
               padding: '8px 16px', borderRadius: 12, border: 'none',
               fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
               transition: 'all 0.2s',
-              background: tab === t.id ? '#e05a3a' : '#fff',
-              color: tab === t.id ? '#fff' : '#86868b',
-              boxShadow: tab === t.id ? '0 4px 14px rgba(224,90,58,0.35)' : '0 1px 4px rgba(0,0,0,0.06)',
+              background: currentTab === t.id ? '#e05a3a' : '#fff',
+              color: currentTab === t.id ? '#fff' : '#86868b',
+              boxShadow: currentTab === t.id ? '0 4px 14px rgba(224,90,58,0.35)' : '0 1px 4px rgba(0,0,0,0.06)',
             }}>
               {t.icon} {t.label}
-              {t.badge && <span style={{ width: 7, height: 7, borderRadius: '50%', background: tab === t.id ? '#fff' : '#e05a3a', flexShrink: 0 }}/>}
+              {t.badge && <span style={{ width: 7, height: 7, borderRadius: '50%', background: currentTab === t.id ? '#fff' : '#e05a3a', flexShrink: 0 }}/>}
             </button>
           ))}
         </div>
 
-        {/* Content */}
+
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 28px' }}>
-          {tab === 'overview'  && <OverviewTab user={user} contacts={contacts}/>}
-          {tab === 'contacts'  && <EmergencyContacts/>}
-          {tab === 'sos'       && <SOSTracker contacts={contacts}/>}
-          {tab === 'incidents' && null /* rendered below, always mounted */}
-          {tab === 'safetymap' && null /* rendered below, always mounted */}
-          {/* Always-mounted: preserve state when switching between incidents ↔ safety map */}
-          <div style={{ display: tab === 'incidents' ? 'block' : 'none' }}>
-            <IncidentReporting
-              currentUserId={user?._id}
-              onPickLocationMode={(active) => {
-                setPickMode(active);
-                if (active) setTab('safetymap');
-              }}
-              pickedLocation={pickedLocation}
-              onPickConsumed={() => setPickedLocation(null)}
-            />
-          </div>
-          <div style={{ display: tab === 'safetymap' ? 'block' : 'none' }}>
-            <SafetyMap
-              isPickMode={pickMode}
-              onMapClick={(loc) => {
-                if (pickMode) {
-                  setPickedLocation(loc);
-                  setPickMode(false);
-                  setTab('incidents');
-                }
-              }}
-            />
-          </div>
-          {tab === 'alerts'    && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 320, color: '#86868b' }}>
-              <span style={{ fontSize: 48, marginBottom: 12 }}>🔔</span>
-              <p style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f' }}>No alerts yet</p>
-              <p style={{ fontSize: 14 }}>Community safety alerts will appear here.</p>
-            </div>
-          )}
+          <Routes>
+            <Route path="overview" element={<OverviewTab user={user} contacts={contacts} userLocation={userLocation} stats={stats}/>} />
+            <Route path="contacts" element={<EmergencyContacts />} />
+
+            <Route path="sos"      element={<SOSTracker contacts={contacts} />} />
+            <Route path="incidents" element={
+              <IncidentReporting
+                currentUserId={user?._id}
+                onPickLocationMode={(active) => {
+                  setPickMode(active);
+                  if (active) navigate('/dashboard/safetymap');
+                }}
+                pickedLocation={pickedLocation}
+                onPickConsumed={() => setPickedLocation(null)}
+              />
+            } />
+            <Route path="safetymap" element={
+              <SafetyMap
+                isPickMode={pickMode}
+                onMapClick={(loc) => {
+                  if (pickMode) {
+                    setPickedLocation(loc);
+                    setPickMode(false);
+                    navigate('/dashboard/incidents');
+                  }
+                }}
+              />
+            } />
+            <Route path="alerts" element={
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 320, color: '#86868b' }}>
+                <span style={{ fontSize: 48, marginBottom: 12 }}>🔔</span>
+                <p style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f' }}>No alerts yet</p>
+                <p style={{ fontSize: 14 }}>Community safety alerts will appear here.</p>
+              </div>
+            } />
+            {/* Fallback to Overview */}
+            <Route path="*" element={<Navigate to="overview" replace />} />
+          </Routes>
         </div>
+
       </main>
     </div>
   );

@@ -41,12 +41,19 @@ exports.getAllIncidents = async (req, res) => {
       .populate({ path: 'reportedBy', select: 'name' })
       .sort({ createdAt: -1 });
 
-    // Mask reporter name if anonymous
+    // Mask reporter name if anonymous, but let the owner know they own it
     const sanitised = incidents.map(inc => {
       const obj = inc.toObject();
-      if (obj.anonymous) obj.reportedBy = { name: 'Anonymous' };
+      const isOwner = obj.reportedBy && obj.reportedBy._id.toString() === req.user._id.toString();
+      
+      if (obj.anonymous && !isOwner && req.user.role !== 'admin') {
+        obj.reportedBy = { name: 'Anonymous' };
+      }
+      
+      obj.isOwner = isOwner || req.user.role === 'admin';
       return obj;
     });
+
 
     res.status(200).json({ status: 'success', results: sanitised.length, data: { incidents: sanitised } });
   } catch (err) {
@@ -61,9 +68,15 @@ exports.getIncident = async (req, res) => {
     if (!incident) return res.status(404).json({ status: 'fail', message: 'No incident found with that ID.' });
 
     const obj = incident.toObject();
-    if (obj.anonymous) obj.reportedBy = { name: 'Anonymous' };
-
+    const isOwner = obj.reportedBy && obj.reportedBy._id.toString() === req.user._id.toString();
+    
+    if (obj.anonymous && !isOwner && req.user.role !== 'admin') {
+      obj.reportedBy = { name: 'Anonymous' };
+    }
+    
+    obj.isOwner = isOwner || req.user.role === 'admin';
     res.status(200).json({ status: 'success', data: { incident: obj } });
+
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
   }

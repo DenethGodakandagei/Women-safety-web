@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../utils/api';
+import RouteAnalyzer from './RouteAnalyzer';
+
 
 const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -142,6 +144,12 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
   const [showLegend,   setShowLegend]   = useState(true);
   const [userLocation, setUserLocation] = useState(null);
   const [stats,        setStats]        = useState({ total: 0, critical: 0, active: 0 });
+  const [destination,  setDestination]  = useState('');
+  const [routeInput,   setRouteInput]   = useState('');
+  const [showRouteSearch, setShowRouteSearch] = useState(false);
+
+  const [directionsRenderer, setDirectionsRenderer] = useState(null);
+
 
   // Fetch incidents
   const fetchIncidents = useCallback(async () => {
@@ -197,6 +205,11 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
         // Shared InfoWindow
         infoWindowRef.current = new mapsApi.InfoWindow({ maxWidth: 300 });
 
+        const dRenderer = new mapsApi.DirectionsRenderer({ suppressMarkers: false });
+        dRenderer.setMap(mapObj.current);
+        setDirectionsRenderer(dRenderer);
+
+        setMapReady(true);
         // Map click handler — always calls the LATEST onMapClick via ref (avoids stale closure)
         mapObj.current.addListener('click', (e) => {
           if (onMapClickRef.current) {
@@ -299,6 +312,16 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
     });
   }, [incidents, mapReady]);
 
+  // Route calculation effect
+  useEffect(() => {
+    if (!mapReady || !destination || !userLocation || !directionsRenderer || !window.google?.maps) return;
+    const ds = new window.google.maps.DirectionsService();
+    ds.route({ origin: userLocation, destination, travelMode: 'DRIVING' }, (res, status) => {
+      if (status === 'OK') directionsRenderer.setDirections(res);
+    });
+  }, [destination, mapReady, userLocation, directionsRenderer]);
+
+
   // Pick mode cursor — re-run whenever pickMode OR map readiness changes
   useEffect(() => {
     if (!mapObj.current) return;
@@ -313,10 +336,45 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
           <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', margin: '0 0 4px' }}>🗺️ Interactive Safety Map</h2>
           <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Live danger zones from community reports. Click a marker for details.</p>
         </div>
-        <button onClick={fetchIncidents} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 18px', borderRadius: 12, background: '#fff', border: '1.5px solid #e5e5e7', color: '#555', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          🔄 Refresh
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={() => setShowRouteSearch(!showRouteSearch)} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 18px', borderRadius: 12, background: showRouteSearch ? '#e05a3a' : '#fff', border: '1.5px solid #e5e5e7', color: showRouteSearch ? '#fff' : '#555', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            🚩 Plan Safe Route
+          </button>
+          <button onClick={fetchIncidents} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 18px', borderRadius: 12, background: '#fff', border: '1.5px solid #e5e5e7', color: '#555', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            🔄 Refresh
+          </button>
+        </div>
       </div>
+
+      {showRouteSearch && (
+        <div style={{ padding: 24, background: '#fff', borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.08)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 15, alignItems: 'flex-end', marginBottom: 20 }}>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 800, color: '#999', display: 'block', marginBottom: 8 }}>STARTING POINT</label>
+              <input disabled value="Current Location" style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: '1.5px solid #f0f0f2', background: '#f8f9fa', fontSize: 14, color: '#555' }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 800, color: '#999', display: 'block', marginBottom: 8 }}>WHERE ARE YOU GOING?</label>
+              <input 
+                placeholder="Enter destination (e.g., Galle, Matara)" 
+                value={routeInput}
+                onChange={(e) => setRouteInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && setDestination(routeInput)}
+                style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: '1.5px solid #e05a3a40', fontSize: 14, color: '#1d1d1f', outline: 'none' }} 
+              />
+            </div>
+            <button 
+              onClick={() => setDestination(routeInput)}
+              style={{ padding: '12px 24px', borderRadius: 12, background: '#e05a3a', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
+            >
+              Analyze Route
+            </button>
+
+          </div>
+          <RouteAnalyzer origin={userLocation} destination={destination} />
+        </div>
+      )}
+
 
       {/* Stats bar */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>

@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/userRoutes');
 const sosRoutes = require('./routes/sosRoutes');
 const incidentRoutes = require('./routes/incidentRoutes');
+const riskRoutes = require('./routes/riskRoutes');
+
 
 const app = express();
 
@@ -31,6 +33,8 @@ app.use((req, res, next) => {
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/sos', sosRoutes);
 app.use('/api/v1/incidents', incidentRoutes);
+app.use('/api/v1/risk', riskRoutes);
+
 
 // Root Hello
 app.get('/', (req, res) => {

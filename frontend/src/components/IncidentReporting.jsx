@@ -51,8 +51,9 @@ const EmptyState = ({ onAdd }) => (
 const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) => {
   const t = typeInfo(incident.type);
   const s = sevInfo(incident.severity);
-  const isOwner = incident.reportedBy?._id === currentUserId || incident.reportedBy === currentUserId;
+  const isOwner = incident.isOwner;
   const upvoted = incident.upvotedBy?.includes(currentUserId);
+
   const timeAgo = (dateStr) => {
     const diff = (Date.now() - new Date(dateStr)) / 1000;
     if (diff < 60) return 'just now';
