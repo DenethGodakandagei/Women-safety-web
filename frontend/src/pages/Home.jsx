@@ -15,21 +15,12 @@ const Home = () => {
       <Navbar />
       
       <main>
-        <Hero />
-        <Features />
-        <BentoGrid />
-        <AIPrediction />
-        <Purpose />
+        <div id="home"><Hero /></div>
+        <div id="intelligence"><Features /></div>
+        <div id="network"><BentoGrid /></div>
+        <div id="technology"><AIPrediction /></div>
+        <div id="trust"><Purpose /></div>
       </main>
-
-      {/* SOS Floating Action Button */}
-      <motion.div 
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="fab bottom-10 right-10 z-[150]"
-      >
-        <Shield size={32} strokeWidth={2.5} />
-      </motion.div>
 
       <Footer />
     </div>

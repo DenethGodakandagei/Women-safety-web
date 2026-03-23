@@ -60,9 +60,9 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
   const statusColor = isSafe ? '#34c759' : stats.riskLevel === 'Moderate' ? '#ff9500' : '#ff3b30';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 20 }}>
+    <div className="content-padding" style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 20 }}>
       {/* ROW 1: Hero Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.6fr', gap: 24 }}>
+      <div className="overview-grid-row1" style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.6fr', gap: 24 }}>
         <div className="card-apple" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '32px' }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -76,10 +76,12 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
               AI analysis confirms high safety levels in your current vicinity. <strong>{stats.activeAlerts}</strong> active reports monitored within 5km.
             </p>
           </div>
-          <ScoreRing score={stats.safetyScore} />
+          <div className="hidden-mobile">
+            <ScoreRing score={stats.safetyScore} />
+          </div>
         </div>
 
-        <div className="card-apple" style={{
+        <div className="card-apple sos-card-mobile-top" style={{
           background: 'linear-gradient(135deg, #ff3b30 0%, #ff6b6b 100%)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', gap: 16, border: 'none', position: 'relative', overflow: 'hidden',
@@ -93,14 +95,14 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
             <PhoneCall size={32} color="#fff" />
           </div>
           <div style={{ textAlign: 'center', zIndex: 1 }}>
-          <p style={{ fontSize: 24, fontWeight: 500, color: '#fff', marginBottom: 6, letterSpacing: '-0.04em' }}>Quick SOS</p>
+            <p style={{ fontSize: 24, fontWeight: 500, color: '#fff', marginBottom: 6, letterSpacing: '-0.04em' }}>Quick SOS</p>
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>Immediate notification for crisis</p>
           </div>
         </div>
       </div>
 
       {/* ROW 2: Widgets Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
+      <div className="overview-grid-row2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
         {/* Tracking Widget */}
         <div className="card-apple" style={{ padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -188,8 +190,8 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
       </div>
 
       {/* Stats bar */}
-      <div className="card-apple" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 32px' }}>
-        <div style={{ display: 'flex', gap: 48 }}>
+      <div className="card-apple stats-bar-apple" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 32px' }}>
+        <div className="stats-bar-items" style={{ display: 'flex', gap: 48 }}>
           {[
             ['TOTAL REPORTS', stats.totalReports],
             ['COMMUNITY ALERTS', stats.activeAlerts + ' Active'],
@@ -280,55 +282,55 @@ const Dashboard = () => {
   ];
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: 'transparent' }}>
-
+    <div className="dashboard-container" style={{ display: 'flex', height: '100vh', background: 'transparent' }}>
       {/* Sidebar */}
-      <aside className="glass" style={{ width: 72, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0', gap: 24, border: 'none', borderRight: '1px solid rgba(255,255,255,0.2)', zIndex: 100 }}>
-        <div className="animate-float" style={{ width: 44, height: 44, borderRadius: 16, background: 'linear-gradient(135deg, #007aff, #00c6ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, flexShrink: 0, boxShadow: '0 8px 16px rgba(0,122,255,0.3)' }}>
+      <aside className="glass sidebar-apple" style={{ width: 72, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0', gap: 24, border: 'none', borderRight: '1px solid rgba(0,0,0,0.05)', zIndex: 100 }}>
+        <div className="sidebar-logo animate-float" style={{ width: 44, height: 44, borderRadius: 16, background: 'linear-gradient(135deg, #007aff, #00c6ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, flexShrink: 0, boxShadow: '0 8px 16px rgba(0,122,255,0.3)' }}>
           <Shield size={24} color="#fff" />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {tabs.map(t => <NavItem key={t.id} icon={t.icon} active={currentTab === t.id} onClick={() => navigate(`/dashboard/${t.id}`)} badge={t.badge} />)}
         </div>
 
-        <div style={{ flex: 1 }} />
+        <div className="sidebar-spacer" style={{ flex: 1 }} />
 
-        <NavItem icon={<Settings size={22} />} active={false} onClick={() => { }} />
-        <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #f5f5f7, #d1d1d6)', padding: 2, border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer' }}>
-          <img src="/memoji.png" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+        <div className="sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+          <NavItem icon={<Settings size={22} />} active={false} onClick={() => { }} />
+          <div className="user-avatar" style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #f5f5f7, #d1d1d6)', padding: 2, border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer' }}>
+            <img src="/memoji.png" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+          </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
-
-        <header style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '40px 48px 24px', background: 'transparent' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+      <main className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+        <header className="header-apple" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '40px 48px 24px', background: 'transparent' }}>
+          <div className="header-user-info" style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
             <img src="/memoji.png" className="animate-float" style={{ width: 80, height: 80, borderRadius: 24, boxShadow: '0 12px 32px rgba(0,0,0,0.1)' }} />
             <div>
-                <p style={{ fontSize: 13, color: '#636366', fontWeight: 600, letterSpacing: '0.08em', marginBottom: 4, textTransform: 'uppercase' }}>SheShield Premium</p>
-              <h1 style={{ fontSize: 44, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.05em', margin: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <p style={{ fontSize: 13, color: '#636366', fontWeight: 600, letterSpacing: '0.08em', marginBottom: 4, textTransform: 'uppercase' }}>SheShield Premium</p>
+              <h1 style={{ fontSize: 44, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.05em', margin: 0 }}>
                 Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}{user ? `, ${user.name.split(' ')[0]}` : ''}
               </h1>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div className="glass" style={{ display: 'flex', alignItems: 'center', gap: 12, borderRadius: 16, padding: '12px 20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', width: 320 }}>
+          <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="glass header-search" style={{ display: 'flex', alignItems: 'center', gap: 12, borderRadius: 16, padding: '12px 20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', width: 320 }}>
               <Search size={18} color="#8e8e93" strokeWidth={2.5} />
               <input placeholder="Search safety zones…" style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 15, color: '#1d1d1f', width: '100%', fontWeight: 500 }} />
             </div>
-            <button className="glass btn-premium" style={{ borderRadius: 16, width: 48, height: 48, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <button className="glass btn-premium hidden-mobile" style={{ borderRadius: 16, width: 48, height: 48, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <SlidersHorizontal size={18} color="#1d1d1f" />
             </button>
           </div>
         </header>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 48px 48px' }}>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
+        <div className="main-scroll-area" style={{ flex: 1, overflowY: 'auto', padding: '0 8px 8px' }}>
+          <div className="tabs-scroll-container" style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
             {tabs.map(t => (
-              <button key={t.id} onClick={() => navigate(`/dashboard/${t.id}`)} className={currentTab === t.id ? 'btn-premium btn-premium-active' : 'btn-premium glass'}>
+              <button key={t.id} onClick={() => navigate(`/dashboard/${t.id}`)} className={currentTab === t.id ? 'btn-premium btn-premium-active' : 'btn-premium glass'} style={{ whiteSpace: 'nowrap' }}>
                 {React.cloneElement(t.icon, { size: 16, strokeWidth: 2.5 })}
                 <span style={{ marginLeft: 2 }}>{t.label}</span>
               </button>

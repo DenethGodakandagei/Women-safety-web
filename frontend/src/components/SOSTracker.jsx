@@ -355,12 +355,14 @@ const SOSTracker = ({ contacts = [] }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-      <div>
-        <h2 style={{ fontSize: 32, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: 0 }}>SOS & Tracking</h2>
-        <p style={{ fontSize: 16, color: '#636366', marginTop: 6, fontWeight: 500 }}>Real-time location sharing with emergency response integration.</p>
+      <div className="responsive-flex-column" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <div style={{ flex: 1 }}>
+          <h2 style={{ fontSize: 32, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: 0 }}>SOS & Tracking</h2>
+          <p style={{ fontSize: 16, color: '#636366', marginTop: 6, fontWeight: 500 }}>Real-time location sharing with emergency response integration.</p>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(400px, 1fr) 1.5fr', gap: 24 }}>
+      <div className="responsive-grid-1-1" style={{ display: 'grid', gridTemplateColumns: 'minmax(400px, 1fr) 1.5fr', gap: 24 }}>
         <SOSPanel location={location} contacts={contacts} />
         <LiveMap location={location} onLocationUpdate={setLocation} />
       </div>

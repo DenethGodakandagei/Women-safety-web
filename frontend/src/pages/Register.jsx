@@ -34,28 +34,35 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen bg-bg-secondary flex flex-col items-center justify-center p-6 relative overflow-hidden">
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[140px] -mr-40 -mt-40 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] -ml-20 -mb-20 pointer-events-none"></div>
+        <div className="min-h-screen bg-[#fbfbfd] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+            {/* Premium Background Meshes */}
+            <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-accent/5 rounded-full blur-[140px] pointer-events-none"></div>
+            <div className="absolute bottom-[-5%] left-[-5%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-            <Link to="/" className="absolute top-10 left-10 text-2xl font-bold tracking-tighter flex items-center gap-2 z-[100]">
-                <Shield className="text-accent" size={30} /> <span className="text-text font-bold">Guardian</span>
+            <Link to="/" className="fixed top-10 left-10 text-2xl font-medium tracking-[-0.05em] flex items-center gap-3 z-[100] font-display text-text group">
+                <div className="w-10 h-10 rounded-2xl glass flex items-center justify-center border-white/60 group-hover:scale-110 transition-transform shadow-inner">
+                   <Shield className="text-accent" size={20} strokeWidth={2} />
+                </div>
+                SheShield.
             </Link>
 
             <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-[560px] relative z-10"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, ease: [0.25, 1, 0.5, 1] }}
+                className="w-full max-w-[560px] relative z-10 py-12"
             >
-                <div className="glass p-12 lg:p-14 rounded-[48px] shadow-2xl bg-white/95 border-white">
+                <div className="glass rounded-[60px] p-12 lg:p-16 border-white/80 bg-white/70 shadow-[0_80px_160px_-40px_rgba(0,0,0,0.1)]">
                     <div className="mb-14 text-center">
-                        <span className="text-[12px] font-bold text-accent uppercase tracking-[3px] mb-4 block">Identity Protection</span>
-                        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight mb-3 text-text">Create yours.</h1>
-                        <p className="text-text-secondary text-lg font-light leading-relaxed">Secure your journey in steps.</p>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/5 border border-accent/10 mb-8">
+                           <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+                           <span className="text-[10px] font-bold text-accent uppercase tracking-[3px]">Identity Provisioning</span>
+                        </div>
+                        <h1 className="text-5xl lg:text-6xl font-medium tracking-[-0.06em] mb-4 text-text font-display">Create <br /> <span className="opacity-20 font-light tracking-tighter italic">profile.</span></h1>
+                        <p className="text-text-secondary text-xl font-light leading-relaxed tracking-tight">Step {step} of 2: Secure your identity.</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-10">
+                    <form onSubmit={handleSubmit} className="space-y-12">
                         <AnimatePresence mode="wait">
                             {step === 1 && (
                                 <motion.div
@@ -65,15 +72,15 @@ const Register = () => {
                                     exit={{ opacity: 0, x: -20 }}
                                     className="space-y-10"
                                 >
-                                    <div className="block">
-                                        <label className="block text-[13px] font-bold text-text-secondary ml-2 uppercase tracking-widest mb-3">Full Name</label>
+                                    <div className="group">
+                                        <label className="block text-[11px] font-bold text-text mb-4 uppercase tracking-[4px] opacity-40 ml-1">Full Identity</label>
                                         <div className="relative">
-                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary z-20">
-                                                <User size={22} />
+                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-text-secondary opacity-40 group-focus-within:opacity-100 transition-opacity">
+                                                <User size={22} strokeWidth={1.5} />
                                             </span>
                                             <input 
                                                 type="text" 
-                                                className="w-full h-16 bg-[#f5f5f7] border-0 rounded-2xl pl-[60px] pr-6 text-[17px] focus:ring-2 focus:ring-accent/20 transition-all outline-none text-text placeholder:text-text-secondary/40 font-medium"
+                                                className="w-full h-18 bg-white/50 border border-black/[0.03] rounded-3xl pl-[68px] pr-8 text-[18px] focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/20 transition-all outline-none text-text placeholder:text-text-secondary/20 font-light"
                                                 placeholder="Enter your name"
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -82,16 +89,16 @@ const Register = () => {
                                         </div>
                                     </div>
 
-                                    <div className="block">
-                                        <label className="block text-[13px] font-bold text-text-secondary ml-2 uppercase tracking-widest mb-3">Email Address</label>
+                                    <div className="group">
+                                        <label className="block text-[11px] font-bold text-text mb-4 uppercase tracking-[4px] opacity-40 ml-1">Email Terminal</label>
                                         <div className="relative">
-                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary z-20">
-                                                <Mail size={22} />
+                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-text-secondary opacity-40 group-focus-within:opacity-100 transition-opacity">
+                                                <Mail size={22} strokeWidth={1.5} />
                                             </span>
                                             <input 
                                                 type="email" 
-                                                className="w-full h-16 bg-[#f5f5f7] border-0 rounded-2xl pl-[60px] pr-6 text-[17px] focus:ring-2 focus:ring-accent/20 transition-all outline-none text-text placeholder:text-text-secondary/40 font-medium"
-                                                placeholder="email@example.com"
+                                                className="w-full h-18 bg-white/50 border border-black/[0.03] rounded-3xl pl-[68px] pr-8 text-[18px] focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/20 transition-all outline-none text-text placeholder:text-text-secondary/20 font-light"
+                                                placeholder="id@shield.protocol"
                                                 value={formData.email}
                                                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                                                 required
@@ -99,15 +106,15 @@ const Register = () => {
                                         </div>
                                     </div>
 
-                                    <div className="block">
-                                        <label className="block text-[13px] font-bold text-text-secondary ml-2 uppercase tracking-widest mb-3">Secure Password</label>
+                                    <div className="group">
+                                        <label className="block text-[11px] font-bold text-text mb-4 uppercase tracking-[4px] opacity-40 ml-1">Encryption Key</label>
                                         <div className="relative">
-                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary z-20">
-                                                <Lock size={22} />
+                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-text-secondary opacity-40 group-focus-within:opacity-100 transition-opacity">
+                                                <Lock size={22} strokeWidth={1.5} />
                                             </span>
                                             <input 
                                                 type="password" 
-                                                className="w-full h-16 bg-[#f5f5f7] border-0 rounded-2xl pl-[60px] pr-6 text-[17px] focus:ring-2 focus:ring-accent/20 transition-all outline-none text-text placeholder:text-text-secondary/40 font-medium"
+                                                className="w-full h-18 bg-white/50 border border-black/[0.03] rounded-3xl pl-[68px] pr-8 text-[18px] focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/20 transition-all outline-none text-text placeholder:text-text-secondary/20 font-light"
                                                 placeholder="Min. 8 characters"
                                                 value={formData.password}
                                                 onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -116,13 +123,21 @@ const Register = () => {
                                         </div>
                                     </div>
 
-                                    <button 
-                                        type="button" 
-                                        onClick={handleNext}
-                                        className="btn btn-primary w-full h-16 rounded-[28px] mt-4 flex items-center justify-center gap-2 group text-white font-bold text-[17px] shadow-xl shadow-accent/20"
-                                    >
-                                        Continue <ChevronRight size={22} className="group-hover:translate-x-1 transition-transform" />
-                                    </button>
+                                    <div className="pt-4">
+                                        <motion.button 
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            type="button" 
+                                            onClick={handleNext}
+                                            className="w-full h-20 bg-accent text-white rounded-[32px] flex items-center justify-between px-10 shadow-2xl shadow-accent/20 group relative overflow-hidden active:scale-95 transition-all duration-300"
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                            <span className="text-[20px] font-bold tracking-tight">Configuration Mode</span>
+                                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center group-hover:rotate-12 transition-transform">
+                                                <ChevronRight size={24} strokeWidth={2.5} />
+                                            </div>
+                                        </motion.button>
+                                    </div>
                                 </motion.div>
                             )}
 
@@ -134,15 +149,15 @@ const Register = () => {
                                     exit={{ opacity: 0, x: -20 }}
                                     className="space-y-10"
                                 >
-                                    <div className="block">
-                                        <label className="block text-[13px] font-bold text-text-secondary ml-2 uppercase tracking-widest mb-3">Phone Number</label>
+                                    <div className="group">
+                                        <label className="block text-[11px] font-bold text-text mb-4 uppercase tracking-[4px] opacity-40 ml-1">Contact Signal</label>
                                         <div className="relative">
-                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary z-20">
-                                                <Phone size={22} />
+                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-text-secondary opacity-40 group-focus-within:opacity-100 transition-opacity">
+                                                <Phone size={22} strokeWidth={1.5} />
                                             </span>
                                             <input 
                                                 type="tel" 
-                                                className="w-full h-16 bg-[#f5f5f7] border-0 rounded-2xl pl-[60px] pr-6 text-[17px] focus:ring-2 focus:ring-accent/20 transition-all outline-none text-text placeholder:text-text-secondary/40 font-medium"
+                                                className="w-full h-18 bg-white/50 border border-black/[0.03] rounded-3xl pl-[68px] pr-8 text-[18px] focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/20 transition-all outline-none text-text placeholder:text-text-secondary/20 font-light"
                                                 placeholder="+1 234 567 8900"
                                                 value={formData.phone}
                                                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
@@ -151,14 +166,14 @@ const Register = () => {
                                         </div>
                                     </div>
 
-                                    <div className="block">
-                                        <label className="block text-[13px] font-bold text-text-secondary ml-2 uppercase tracking-widest mb-3">Residential Address</label>
+                                    <div className="group">
+                                        <label className="block text-[11px] font-bold text-text mb-4 uppercase tracking-[4px] opacity-40 ml-1">Spatial Home</label>
                                         <div className="relative">
-                                            <span className="absolute left-5 top-6 text-text-secondary z-20">
-                                                <MapPin size={22} />
+                                            <span className="absolute left-6 top-6 text-text-secondary opacity-40 group-focus-within:opacity-100 transition-opacity">
+                                                <MapPin size={22} strokeWidth={1.5} />
                                             </span>
                                             <textarea 
-                                                className="w-full bg-[#f5f5f7] border-0 rounded-2xl pl-[60px] pr-6 py-5 text-[17px] focus:ring-2 focus:ring-accent/20 transition-all outline-none resize-none h-32 text-text placeholder:text-text-secondary/40 font-medium"
+                                                className="w-full bg-white/50 border border-black/[0.03] rounded-3xl pl-[68px] pr-8 py-5 text-[18px] focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/20 transition-all outline-none resize-none h-32 text-text placeholder:text-text-secondary/20 font-light"
                                                 placeholder="Street, City, Zip"
                                                 value={formData.address}
                                                 onChange={(e) => setFormData({...formData, address: e.target.value})}
@@ -167,23 +182,38 @@ const Register = () => {
                                         </div>
                                     </div>
 
-                                    {error && <p className="text-accent text-[13px] font-bold text-center bg-accent/5 py-4 rounded-2xl">{error}</p>}
+                                    {error && (
+                                        <motion.div 
+                                          initial={{ opacity: 0, y: 10 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          className="text-accent text-[13px] font-bold text-center bg-accent/5 py-5 rounded-3xl border border-accent/10"
+                                        >
+                                           {error}
+                                        </motion.div>
+                                    )}
 
-                                    <div className="flex gap-4">
+                                    <div className="flex gap-4 pt-4">
                                         <button 
                                             type="button" 
                                             onClick={handleBack}
-                                            className="btn flex-1 h-16 bg-black/5 hover:bg-black/10 py-4 rounded-[28px] text-text font-bold"
+                                            className="flex-1 h-20 glass rounded-[32px] text-text font-bold hover:bg-black/5 transition-all text-[17px] tracking-tight"
                                         >
-                                            Back
+                                            Previous
                                         </button>
-                                        <button 
+                                        <motion.button 
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
                                             type="submit" 
                                             disabled={loading}
-                                            className="btn btn-primary flex-[2] h-16 py-4 rounded-[28px] flex items-center justify-center gap-2 group text-white font-bold text-[17px] shadow-xl shadow-accent/20"
+                                            className="flex-[2] h-20 bg-accent text-white rounded-[32px] flex items-center justify-between px-10 shadow-2xl shadow-accent/20 group relative overflow-hidden active:scale-95 transition-all duration-300"
                                         >
-                                            {loading ? 'Securing...' : 'Verify Profile'} <CheckCircle2 size={24} />
-                                        </button>
+                                            <span className="text-[19px] font-bold tracking-tight">
+                                               {loading ? 'Securing...' : 'Deploy Sentinel'}
+                                            </span>
+                                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center group-hover:rotate-12 transition-transform">
+                                                <CheckCircle2 size={24} strokeWidth={2.5} />
+                                            </div>
+                                        </motion.button>
                                     </div>
                                 </motion.div>
                             )}
@@ -191,8 +221,11 @@ const Register = () => {
                     </form>
                 </div>
 
-                <div className="mt-12 text-center text-text-secondary text-[15px] font-medium tracking-tight">
-                    Already part of the network? <Link to="/login" className="text-accent font-bold hover:underline">Sign in.</Link>
+                <div className="mt-16 text-center">
+                    <p className="text-text-secondary text-[16px] font-medium tracking-tight opacity-40 mb-4">Already registered?</p>
+                    <Link to="/login" className="glass px-8 py-3 rounded-2xl text-accent font-bold hover:bg-accent hover:text-white transition-all border-accent/10 hover:border-accent shadow-lg shadow-accent/5">
+                       Sign in Protocol.
+                    </Link>
                 </div>
             </motion.div>
         </div>

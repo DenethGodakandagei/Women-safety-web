@@ -6,6 +6,26 @@ import {
 } from 'lucide-react';
 import api from '../utils/api';
 
+const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+const loadGoogleMaps = () =>
+  new Promise((resolve, reject) => {
+    if (window.google?.maps) return resolve(window.google.maps);
+    const existing = document.getElementById('gmap-script');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(window.google.maps));
+      return;
+    }
+    const script = document.createElement('script');
+    script.id = 'gmap-script';
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve(window.google.maps);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+
 // ─── Config ───────────────────────────────────────────────────────────────────
 const INCIDENT_TYPES = [
   { value: 'harassment',          label: 'Harassment',           icon: <AlertCircle size={14}/>, color: '#f97316' },
@@ -65,70 +85,129 @@ const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) =
     <div className="card-apple group" style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: 24,
-      background: 'rgba(255, 255, 255, 0.85)',
+      gap: 16,
+      background: 'rgba(255, 255, 255, 0.95)',
       backdropFilter: 'blur(30px)',
       border: '1px solid rgba(255, 255, 255, 0.7)',
       boxShadow: '0 8px 32px rgba(0,0,0,0.03)',
-      padding: '32px',
+      padding: '20px',
       transition: 'all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1)',
-      cursor: 'default'
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ display: 'flex', gap: 20 }}>
-          <div style={{ width: 60, height: 60, borderRadius: 20, background: `${t.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${t.color}15`, flexShrink: 0 }}>
-             <span style={{ color: t.color }}>{React.cloneElement(t.icon, { size: 28, strokeWidth: 2.2 })}</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 14, flex: 1, minWidth: 0 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 16, background: `${t.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${t.color}15`, flexShrink: 0 }}>
+             <span style={{ color: t.color }}>{React.cloneElement(t.icon, { size: 22, strokeWidth: 2.5 })}</span>
           </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-               <span style={{ fontSize: 10, fontWeight: 700, color: s.color, textTransform: 'uppercase', letterSpacing: '0.12em', background: `${s.color}10`, padding: '4px 12px', borderRadius: 10 }}>{s.label} Severity</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
+               <span style={{ fontSize: 9, fontWeight: 800, color: s.color, textTransform: 'uppercase', letterSpacing: '0.08em', background: `${s.color}12`, padding: '3px 10px', borderRadius: 8 }}>{s.label} Severity</span>
                {incident.status === 'resolved' && (
-                 <span style={{ fontSize: 10, fontWeight: 700, color: '#34c759', background: 'rgba(52,199,89,0.1)', padding: '4px 12px', borderRadius: 10 }}>RESOLVED</span>
+                 <span style={{ fontSize: 9, fontWeight: 800, color: '#34c759', background: 'rgba(52,199,89,0.1)', padding: '3px 10px', borderRadius: 8 }}>RESOLVED</span>
                )}
             </div>
-            <h3 style={{ fontSize: 24, fontWeight: 500, color: '#1d1d1f', margin: 0, letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>{incident.title}</h3>
+            <h3 style={{ fontSize: 20, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.03em', lineHeight: 1.2, wordBreak: 'break-word' }}>{incident.title}</h3>
           </div>
         </div>
         
         {isOwner && (
           <button 
-            onClick={() => onDelete(incident._id)} 
-            className="hover-scale opacity-0 group-hover:opacity-100" 
-            style={{ width: 36, height: 36, borderRadius: 12, border: 'none', background: 'rgba(255, 59, 48, 0.1)', color: '#ff3b30', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}
+            onClick={(e) => { e.stopPropagation(); onDelete(incident._id); }} 
+            className="hover-scale" 
+            style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: 'rgba(255, 59, 48, 0.08)', color: '#ff3b30', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s', flexShrink: 0 }}
           >
-            <Trash2 size={16}/>
+            <Trash2 size={14}/>
           </button>
         )}
       </div>
 
-      <p style={{ fontSize: 16, color: '#636366', lineHeight: 1.6, margin: 0, fontWeight: 500, flex: 1, letterSpacing: '-0.01em' }}>{incident.description}</p>
+      <p style={{ fontSize: 14, color: '#48484a', lineHeight: 1.5, margin: 0, fontWeight: 500, flex: 1, letterSpacing: '-0.01em' }}>{incident.description}</p>
 
       {incident.location?.address && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#8e8e93', fontSize: 13, fontWeight: 600 }}>
-          <MapPin size={16} color={s.color} /> <span>{incident.location.address}</span>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, color: '#8e8e93', fontSize: 12, fontWeight: 600 }}>
+          <MapPin size={14} color={s.color} style={{ marginTop: 2, flexShrink: 0 }} /> 
+          <span style={{ lineHeight: 1.4 }}>{incident.location.address}</span>
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #f5f5f7, #e5e5e7)', border: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 600, color: '#1d1d1f' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 16, marginTop: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #f5f5f7, #e5e5e7)', border: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#1d1d1f', flexShrink: 0 }}>
             {incident.reportedBy?.name?.[0] || 'A'}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <span style={{ fontSize: 14, color: '#1d1d1f', fontWeight: 600 }}>{incident.anonymous ? 'Anonymous User' : incident.reportedBy?.name}</span>
-            <span style={{ fontSize: 12, color: '#8e8e93', fontWeight: 500 }}>{timeAgo(incident.createdAt)}</span>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 13, color: '#1d1d1f', fontWeight: 600 }}>{incident.anonymous ? 'Anonymous' : incident.reportedBy?.name}</span>
+            <span style={{ fontSize: 11, color: '#8e8e93', fontWeight: 500 }}>{timeAgo(incident.createdAt)}</span>
           </div>
         </div>
         <button 
-          onClick={() => onUpvote(incident._id)} 
+          onClick={(e) => { e.stopPropagation(); onUpvote(incident._id); }} 
           className={upvoted ? 'btn-premium-active' : 'btn-premium'}
-          style={{ padding: '0 20px', fontSize: 14, borderRadius: 16, height: 44, gap: 12, transition: 'all 0.3s' }}
+          style={{ padding: '0 14px', fontSize: 12, borderRadius: 12, height: 36, gap: 8, transition: 'all 0.3s' }}
         >
-          <ThumbsUp size={18} fill={upvoted ? 'currentColor' : 'none'} strokeWidth={2.5} /> 
-          <span style={{ fontWeight: 700 }}>{incident.upvotes || 0}</span>
+          <ThumbsUp size={16} fill={upvoted ? 'currentColor' : 'none'} strokeWidth={2.5} /> 
+          <span style={{ fontWeight: 800 }}>{incident.upvotes || 0}</span>
         </button>
       </div>
+    </div>
+  );
+};
+
+// ─── MAP PICKER COMPONENT ─────────────────────────────────────────────────────
+const InlineMapPicker = ({ onPick, onCancel }) => {
+  const mapRef = React.useRef(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let map;
+    const init = async () => {
+      try {
+        const mapsApi = await loadGoogleMaps();
+        setLoading(false);
+        if (!mapRef.current) return;
+        
+        map = new mapsApi.Map(mapRef.current, {
+          center: { lat: 6.9271, lng: 79.8612 }, 
+          zoom: 13,
+          disableDefaultUI: false,
+          draggableCursor: 'crosshair',
+          mapTypeControl: false,
+          streetViewControl: false
+        });
+
+        map.addListener('click', (e) => {
+          onPick({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+        });
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(pos => {
+            const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            map.setCenter(loc);
+            map.setZoom(15);
+          }, () => {});
+        }
+      } catch (err) { console.error(err); }
+    };
+    init();
+  }, [onPick]);
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: 440, borderRadius: 20, overflow: 'hidden', background: '#f5f5f7', border: '1px solid rgba(0,0,0,0.05)' }}>
+      {loading && <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)', zIndex: 2, fontWeight: 600, color: '#8e8e93' }}>Loading Security Map...</div>}
+      <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+      <div style={{ position: 'absolute', top: 16, left: 16, right: 16, pointerEvents: 'none' }}>
+        <div style={{ background: 'rgba(0,122,255,0.95)', color: '#fff', padding: '10px 16px', borderRadius: 14, fontSize: 13, fontWeight: 700, textAlign: 'center', boxShadow: '0 8px 32px rgba(0,122,255,0.3)', backdropFilter: 'blur(10px)' }}>
+          TAP ANYWHERE TO PIN INCIDENT
+        </div>
+      </div>
+      <button 
+        type="button"
+        onClick={onCancel} 
+        style={{ position: 'absolute', bottom: 16, right: 16, padding: '12px 24px', borderRadius: 14, background: '#fff', border: 'none', fontWeight: 700, fontSize: 13, color: '#ff3b30', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', cursor: 'pointer', transition: 'all 0.2s' }}
+      >
+        Cancel
+      </button>
     </div>
   );
 };
@@ -160,6 +239,7 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState('');
   const [locLoading, setLocLoading] = useState(false);
+  const [isPicking, setIsPicking]   = useState(false);
 
   const updateField = (key, val) => setForm(f => ({ ...f, [key]: val }));
   const setLoc      = (key, val) => setForm(f => ({ ...f, location: { ...f.location, [key]: val } }));
@@ -173,21 +253,28 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
 
   const useMyLocation = () => {
     setLocLoading(true);
+    setError('');
     navigator.geolocation?.getCurrentPosition(
       pos => {
         setLoc('lat', pos.coords.latitude);
         setLoc('lng', pos.coords.longitude);
         setLocLoading(false);
       },
-      () => { setError('Could not get your location.'); setLocLoading(false); }
+      () => { setError('GPS access denied.'); setLocLoading(false); }
     );
+  };
+
+  const handeInlinePick = (coords) => {
+    setForm(f => ({ ...f, location: { ...f.location, lat: coords.lat, lng: coords.lng } }));
+    setIsPicking(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isPicking) return;
     setError('');
     if (!form.location.lat || !form.location.lng) {
-      setError('Please provide a location (use GPS or enter coordinates).');
+      setError('Coordinates required. Use GPS or Pick on Map.');
       return;
     }
     setLoading(true);
@@ -207,7 +294,7 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
       }
       onSave();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save incident.');
+      setError(err.response?.data?.message || 'Failed to save report.');
     } finally {
       setLoading(false);
     }
@@ -233,20 +320,20 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="card-apple" style={{ background: 'rgba(255,255,255,0.95)', borderRadius: 32, width: '100%', maxWidth: 640, maxHeight: '92vh', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.5)', padding: 0, boxShadow: '0 40px 100px rgba(0,0,0,0.15)' }}>
         {/* Modal header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '40px 40px 32px', position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <div className="glass-dark" style={{ width: 64, height: 64, borderRadius: 20, background: isEdit ? 'rgba(0,0,0,0.03)' : 'rgba(255, 59, 48, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {isEdit ? <Edit2 size={28} color="#1d1d1f" /> : <Siren size={28} color="#ff3b30" />}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '32px 32px 24px', position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="glass-dark" style={{ width: 56, height: 56, borderRadius: 20, background: isEdit ? 'rgba(0,0,0,0.03)' : 'rgba(255, 59, 48, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {isEdit ? <Edit2 size={24} color="#1d1d1f" /> : <Siren size={24} color="#ff3b30" />}
             </div>
             <div>
-              <h2 style={{ fontSize: 28, fontWeight: 500, color: '#1d1d1f', margin: '0', letterSpacing: '-0.04em' }}>{isEdit ? 'Update Details' : 'Report Incident'}</h2>
-              <p style={{ fontSize: 15, color: '#636366', margin: '6px 0 0', fontWeight: 500 }}>Help other citizens stay safe by sharing details.</p>
+              <h2 style={{ fontSize: 24, fontWeight: 500, color: '#1d1d1f', margin: '0', letterSpacing: '-0.04em' }}>{isEdit ? 'Update Details' : 'Report Incident'}</h2>
+              <p style={{ fontSize: 13, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Help other citizens stay safe.</p>
             </div>
           </div>
-          <button onClick={onClose} style={{ position: 'absolute', top: 40, right: 40, width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.03)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1d1d1f' }}><X size={24}/></button>
+          <button onClick={onClose} style={{ position: 'absolute', top: 32, right: 32, width: 40, height: 40, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.03)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1d1d1f' }}><X size={20}/></button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <form onSubmit={handleSubmit} style={{ padding: '0 32px 32px', display: 'flex', flexDirection: 'column', gap: 20 }}>
           {error && <div style={{ padding: '14px 18px', borderRadius: 14, background: 'rgba(255, 59, 48, 0.08)', color: '#ff3b30', fontSize: 14, fontWeight: 600, border: '1px solid rgba(255, 59, 48, 0.1)', display: 'flex', alignItems: 'center', gap: 10 }}><AlertCircle size={18} /> {error}</div>}
 
           {/* Title */}
@@ -255,7 +342,7 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
             <input value={form.title} onChange={e => updateField('title', e.target.value)} style={inp} placeholder="e.g. Broken streetlight, Heavy harassment zone..." required maxLength={120}/>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div className="responsive-grid-modal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
               <label style={labelStyle}>Category</label>
               <select value={form.type} onChange={e => updateField('type', e.target.value)} style={{ ...inp, appearance: 'none', cursor: 'pointer' }}>
@@ -272,24 +359,31 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
 
           <div>
             <label style={labelStyle}>Detailed Description</label>
-            <textarea value={form.description} onChange={e => updateField('description', e.target.value)} style={{ ...inp, minHeight: 140, resize: 'none' }} placeholder="Share more context to help others..." required maxLength={1000}/>
+            <textarea value={form.description} onChange={e => updateField('description', e.target.value)} style={{ ...inp, minHeight: 120, resize: 'none' }} placeholder="Share more context..." required maxLength={1000}/>
           </div>
 
-          <div>
+          <div style={{ display: isPicking ? 'none' : 'block' }}>
             <label style={labelStyle}>Location Coordinates</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="responsive-grid-modal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               <input type="number" step="any" value={form.location.lat} onChange={e => setLoc('lat', e.target.value)} style={inp} placeholder="Latitude" required/>
               <input type="number" step="any" value={form.location.lng} onChange={e => setLoc('lng', e.target.value)} style={inp} placeholder="Longitude" required/>
             </div>
-            <div style={{ display: 'flex', gap: 16 }}>
-              <button type="button" onClick={useMyLocation} className="btn-premium" style={{ flex: 1, padding: '16px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f', borderRadius: 16 }}>
-                <NavigationIcon size={18} /> My GPS
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <button type="button" onClick={useMyLocation} disabled={locLoading} className="btn-premium full-width-mobile" style={{ flex: 1, padding: '14px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f', borderRadius: 16 }}>
+                {locLoading ? <Loader2 size={18} className="animate-spin" /> : <><NavigationIcon size={18} /> GPS</>}
               </button>
-              <button type="button" onClick={() => onPickLocation(form)} className="btn-premium btn-premium-active" style={{ flex: 1, padding: '16px', borderRadius: 16 }}>
+              <button type="button" onClick={() => setIsPicking(true)} className="btn-premium btn-premium-active full-width-mobile" style={{ flex: 1, padding: '14px', borderRadius: 16 }}>
                 <MapIcon size={18} /> Pick on Map
               </button>
             </div>
           </div>
+
+          {isPicking && (
+            <div style={{ animation: 'fadeIn 0.3s ease' }}>
+              <label style={labelStyle}>Select Point on Map</label>
+              <InlineMapPicker onPick={handeInlinePick} onCancel={() => setIsPicking(false)} />
+            </div>
+          )}
 
           <label style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', fontSize: 15, color: '#1d1d1f', fontWeight: 600, padding: '20px', background: 'rgba(0,0,0,0.03)', borderRadius: 20 }}>
             <input type="checkbox" checked={form.anonymous} onChange={e => updateField('anonymous', e.target.checked)} style={{ width: 24, height: 24, accentColor: '#ff3b30', borderRadius: 8 }}/>
@@ -380,12 +474,12 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
     fetchIncidents();
   };
 
-  // Called from inside the form's "Pick on Map" button
+  // Called from inside the form's "Pick on Map" button (Legacy - now handled inline)
   const handlePickLocation = (currentFormDraft) => {
-    draftRef.current = currentFormDraft; // save current form values
+    draftRef.current = currentFormDraft;
     setAwaitingPick(true);
-    setShowForm(false);                  // hide modal while map is visible
-    onPickLocationMode && onPickLocationMode(true); // tell Dashboard to switch to map tab
+    setShowForm(false);
+    onPickLocationMode && onPickLocationMode(true);
   };
 
   const filtered = incidents.filter(inc =>
@@ -397,17 +491,17 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+      <div className="responsive-flex-column" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <div className="glass-dark" style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(255, 59, 48, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="glass-dark" style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(255, 59, 48, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Siren size={32} color="#ff3b30" />
           </div>
           <div>
             <h2 style={{ fontSize: 32, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: '0' }}>Incident Reports</h2>
-            <p style={{ fontSize: 16, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Crowdsourced safety alerts and danger zone monitoring.</p>
+            <p style={{ fontSize: 16, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Crowdsourced safety alerts.</p>
           </div>
         </div>
-        <button onClick={() => { setEditTarget(null); setPendingPick(null); setShowForm(true); }} className="btn-premium btn-premium-active animate-pulse-subtle" style={{ padding: '14px 28px', fontSize: 15 }}>
+        <button onClick={() => { setEditTarget(null); setPendingPick(null); setShowForm(true); }} className="btn-premium btn-premium-active animate-pulse-subtle full-width-mobile" style={{ padding: '14px 28px', fontSize: 15 }}>
           <Plus size={20}/> Report Incident
         </button>
       </div>
@@ -421,24 +515,24 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
       )}
 
       {/* Filters bar */}
-      <div className="card-apple" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', padding: '20px 24px', background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)' }}>
-        <div className="glass-dark" style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 280, borderRadius: 16, padding: '12px 20px', background: 'rgba(0,0,0,0.03)' }}>
+      <div className="card-apple responsive-flex-column" style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 24px', background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)' }}>
+        <div className="glass-dark full-width-mobile" style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 280, borderRadius: 16, padding: '12px 20px', background: 'rgba(0,0,0,0.03)' }}>
           <Search size={20} color="#8e8e93" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search safety reports..." style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 15, color: '#1d1d1f', width: '100%', fontWeight: 500 }}/>
         </div>
 
-        <div style={{ display: 'flex', gap: 12 }}>
-          <select value={filterType} onChange={e => setFilterType(e.target.value)} className="btn-premium" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(0,0,0,0.03)', border: 'none', fontSize: 14 }}>
+        <div className="full-width-mobile" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <select value={filterType} onChange={e => setFilterType(e.target.value)} className="btn-premium full-width-mobile" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(0,0,0,0.03)', border: 'none', fontSize: 14 }}>
             <option value="">All Categories</option>
             {INCIDENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
 
-          <select value={filterSev} onChange={e => setFilterSev(e.target.value)} className="btn-premium" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(0,0,0,0.03)', border: 'none', fontSize: 14 }}>
+          <select value={filterSev} onChange={e => setFilterSev(e.target.value)} className="btn-premium full-width-mobile" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(0,0,0,0.03)', border: 'none', fontSize: 14 }}>
             <option value="">All Severity</option>
             {SEVERITY_LEVELS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
 
-          <button onClick={() => setMyOnly(m => !m)} className={myOnly ? 'btn-premium btn-premium-active' : 'btn-premium'} style={{ padding: '12px 20px', fontSize: 14 }}>
+          <button onClick={() => setMyOnly(m => !m)} className={`${myOnly ? 'btn-premium btn-premium-active' : 'btn-premium'} full-width-mobile`} style={{ padding: '12px 20px', fontSize: 14 }}>
             {myOnly ? <CheckCircle size={18}/> : <Filter size={18}/>} <span>{myOnly ? 'Your Reports' : 'All Reports'}</span>
           </button>
         </div>
@@ -458,7 +552,7 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
             ) : null;
           })}
           <div className="glass-dark" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 18px', borderRadius: 14, background: 'rgba(0,0,0,0.03)', border: 'none', color: '#8e8e93' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{incidents.length} TOTAL REPORTS</span>
+            <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{incidents.length} TOTAL REPORTS</span>
           </div>
         </div>
       )}
@@ -472,7 +566,7 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
       ) : filtered.length === 0 ? (
         <EmptyState onAdd={() => setShowForm(true)}/>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
+        <div className="responsive-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
           {filtered.map(inc => (
             <IncidentCard
               key={inc._id}

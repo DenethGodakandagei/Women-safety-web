@@ -110,13 +110,14 @@ const MapLegend = ({ filter, onFilter }) => (
     backdropFilter: 'blur(20px)', 
     borderRadius: 24, 
     padding: '24px', 
-    width: 260,
+    width: '100%',
+    maxWidth: 260,
     border: '1px solid rgba(255,255,255,0.5)',
     display: 'flex',
     flexDirection: 'column',
     gap: 16
   }}>
-    <div>
+    <div className="hidden-mobile">
       <p style={{ fontSize: 10, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', margin: '0 0 12px', textTransform: 'uppercase' }}>Safety Layers</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <button 
@@ -146,6 +147,22 @@ const MapLegend = ({ filter, onFilter }) => (
           </button>
         ))}
       </div>
+    </div>
+
+    {/* Mobile Select */}
+    <div className="hidden-desktop">
+      <p style={{ fontSize: 10, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', margin: '0 0 8px', textTransform: 'uppercase' }}>Filter Map</p>
+      <select 
+        value={filter} 
+        onChange={(e) => onFilter(e.target.value)}
+        className="btn-premium"
+        style={{ width: '100%', appearance: 'none', padding: '12px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.03)', fontWeight: 600, fontSize: 14 }}
+      >
+        <option value="">All Intel Layers</option>
+        {INCIDENT_TYPES.map(t => (
+          <option key={t.value} value={t.value}>{t.label}</option>
+        ))}
+      </select>
     </div>
     
     <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 16 }}>
@@ -369,29 +386,29 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+      <div className="responsive-flex-column" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <div className="glass-dark" style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(0,122,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="glass-dark" style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(0,122,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <MapIcon size={32} color="#007aff" />
           </div>
           <div>
             <h2 style={{ fontSize: 32, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: '0' }}>Safety Map</h2>
-            <p style={{ fontSize: 16, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Live community-driven intelligence for safer navigation.</p>
+            <p style={{ fontSize: 16, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Live community-driven intelligence.</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button onClick={() => setShowRouteSearch(!showRouteSearch)} className={showRouteSearch ? 'btn-premium btn-premium-active' : 'btn-premium'} style={{ padding: '12px 24px', fontSize: 14 }}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }} className="full-width-mobile">
+          <button onClick={() => setShowRouteSearch(!showRouteSearch)} className={`${showRouteSearch ? 'btn-premium btn-premium-active' : 'btn-premium'} full-width-mobile`} style={{ padding: '12px 24px', fontSize: 14 }}>
             <NavigationIcon size={18} /> Plan Safe Route
           </button>
-          <button onClick={fetchIncidents} className="btn-premium" style={{ padding: '12px 24px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f' }}>
+          <button onClick={fetchIncidents} className="btn-premium full-width-mobile" style={{ padding: '12px 24px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f' }}>
             <RefreshCcw size={18}/>
           </button>
         </div>
       </div>
 
       {showRouteSearch && (
-        <div className="card-apple" style={{ padding: '32px', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)', border: 'none' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 20, alignItems: 'flex-end', marginBottom: 24 }}>
+        <div className="card-apple" style={{ padding: '24px', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)', border: 'none' }}>
+          <div className="responsive-grid-modal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 20, alignItems: 'flex-end', marginBottom: 24 }}>
             <div>
               <label style={{ fontSize: 11, fontWeight: 600, color: '#8e8e93', display: 'block', marginBottom: 10, letterSpacing: '0.05em' }}>START POINT</label>
               <div className="glass-dark" style={{ background: 'rgba(0,0,0,0.03)', padding: '14px 18px', borderRadius: 14, fontSize: 15, color: '#8e8e93', fontWeight: 600 }}>
@@ -411,7 +428,7 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
             </div>
             <button 
               onClick={() => setDestination(routeInput)}
-              className="btn-premium btn-premium-active"
+              className="btn-premium btn-premium-active full-width-mobile"
               style={{ padding: '14px 32px', height: 52 }}
             >
               Analyze Security
@@ -423,14 +440,14 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
 
 
       {/* Stats bar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <div className="responsive-grid-modal" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
         {[
           { label: 'Intelligence Base', value: stats.total,    icon: <MapPin size={24}/>,      color: '#007aff', bg: 'rgba(0, 122, 255, 0.05)' },
           { label: 'Active Reports',    value: stats.active,   icon: <Siren size={24}/>,       color: '#ff3b30', bg: 'rgba(255, 59, 48, 0.05)' },
           { label: 'High Alert Zones',  value: stats.critical, icon: <AlertTriangle size={24}/>, color: '#ff9500', bg: 'rgba(255, 149, 0, 0.05)' },
         ].map(s => (
           <div key={s.label} className="card-apple" style={{ background: s.bg, padding: '20px 24px', border: 'none', display: 'flex', alignItems: 'center', gap: 18 }}>
-            <div className="glass-dark" style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)', color: s.color }}>
+            <div className="glass-dark" style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)', color: s.color, flexShrink: 0 }}>
               {s.icon}
             </div>
             <div>
@@ -449,10 +466,10 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
       )}
 
       {/* Map wrapper */}
-      <div style={{ position: 'relative', borderRadius: 28, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.5)' }}>
+      <div className="map-wrapper" style={{ position: 'relative', borderRadius: 28, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.5)', height: 520 }}>
         {/* Legend overlay */}
         {showLegend && !isPickMode && (
-          <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10 }}>
+          <div className="legend-container" style={{ position: 'absolute', top: 20, right: 20, zIndex: 11 }}>
             <MapLegend filter={filterType} onFilter={setFilterType}/>
           </div>
         )}
@@ -461,7 +478,7 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
         <button
           onClick={() => setShowLegend(l => !l)}
           className="btn-premium glass-dark"
-          style={{ position: 'absolute', top: 20, left: 20, zIndex: 10, padding: '10px 18px', background: 'rgba(255,255,255,0.9)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+          style={{ position: 'absolute', top: 20, left: 20, zIndex: 12, padding: '10px 18px', background: 'rgba(255,255,255,0.95)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
         >
           {showLegend ? <><ChevronLeft size={16}/> Hide Filters</> : <><ChevronRight size={16}/> Show Filters</>}
         </button>
@@ -481,7 +498,7 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
             </div>
             <p style={{ fontSize: 15, fontWeight: 700, color: '#dc2626', margin: 0 }}>{mapError}</p>
             <p style={{ fontSize: 13, color: '#86868b', margin: 0, maxWidth: 360 }}>
-              Add <code>VITE_GOOGLE_MAPS_API_KEY</code> to your <code>.env</code> file with a valid key.
+              Add <code>VITE_GOOGLE_MAPS_API_KEY</code> to your <code>.env</code> file.
             </p>
           </div>
         )}
@@ -489,11 +506,11 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
         {loading && !mapError && (
           <div style={{ position: 'absolute', top: 60, left: '50%', transform: 'translateX(-50%)', zIndex: 5, display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px', borderRadius: 99, background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.1)', fontSize: 13, fontWeight: 600, color: '#555' }}>
             <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid #f0f0f0', borderTop: '2px solid #e05a3a', animation: 'spin 0.7s linear infinite' }}/>
-            Loading incidents…
+            Loading...
           </div>
         )}
 
-        <div ref={mapRef} style={{ width: '100%', height: 520, background: '#e8eaed' }}/>
+        <div ref={mapRef} className="map-container" style={{ width: '100%', height: '100%', background: '#e8eaed' }}/>
 
         <style>{`
           @keyframes map-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
