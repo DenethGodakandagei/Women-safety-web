@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import CompleteProfile from './pages/CompleteProfile';
 import Dashboard from './pages/Dashboard';
+import LiveTracker from './pages/LiveTracker';
 import './index.css';
 
 const App = () => {
@@ -16,6 +17,9 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/complete-profile" element={<CompleteProfile />} />
         <Route path="/dashboard/*" element={<Dashboard />} />
+        
+        {/* Public SOS Live Tracking Page */}
+        <Route path="/sos/track/:sessionId" element={<LiveTracker />} />
 
       </Routes>
     </Router>

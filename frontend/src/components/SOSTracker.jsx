@@ -32,6 +32,7 @@ const SOSPanel = ({ location, contacts }) => {
   const [state, setState] = useState('idle'); // idle | counting | sending | sent | error
   const [countdown, setCountdown] = useState(5);
   const [result, setResult] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
   const timerRef = useRef(null);
 
   const startSOS = () => {
@@ -62,6 +63,7 @@ const SOSPanel = ({ location, contacts }) => {
         longitude: location.lng,
       });
       setResult(data.data);
+      setSessionId(data.data.sessionId);
       setState('sent');
     } catch (e) {
       setResult({ error: e.response?.data?.message || 'Emergency server unreachable.' });
@@ -69,7 +71,31 @@ const SOSPanel = ({ location, contacts }) => {
     }
   };
 
-  const reset = () => { setState('idle'); setResult(null); setCountdown(5); };
+  // Sync live location to backend during active SOS
+  useEffect(() => {
+    let interval;
+    if (sessionId && state === 'sent' && location.lat !== 0) {
+      interval = setInterval(async () => {
+        try {
+          await api.patch(`/sos/update-location/${sessionId}`, {
+            latitude: location.lat,
+            longitude: location.lng
+          });
+          console.log('[SOSTracker] Syncing location...');
+        } catch (err) {
+          console.error('[SOSTracker] Sync failed:', err.message);
+        }
+      }, 10000);
+    }
+    return () => clearInterval(interval);
+  }, [sessionId, state, location]);
+
+  const reset = () => { 
+    setState('idle'); 
+    setResult(null); 
+    setSessionId(null);
+    setCountdown(5); 
+  };
 
   const hasContacts = contacts.length > 0;
   const hasLocation = location.lat !== 0;
@@ -151,7 +177,7 @@ const SOSPanel = ({ location, contacts }) => {
           >
             <Siren size={24} /> SEND EMERGENCY SOS
           </button>
-          <p style={{ fontSize: 12, textAlign: 'center', color: '#8e8e93', marginTop: 16, fontWeight: 600 }}>SMS alerts will be sent with your live coordinates.</p>
+          <p style={{ fontSize: 12, textAlign: 'center', color: '#8e8e93', marginTop: 16, fontWeight: 600 }}>SMS & Email alerts with LIVE tracking link will be sent.</p>
         </div>
       )}
 
@@ -180,17 +206,22 @@ const SOSPanel = ({ location, contacts }) => {
 
       {/* SENT state */}
       {state === 'sent' && (
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 32 }}>
-            <div style={{ background: 'rgba(255,255,255,0.2)', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
-              <CheckCircle size={48} color="#fff" />
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <div className="animate-pulse" style={{ background: 'rgba(255,255,255,0.25)', width: 100, height: 100, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 32, boxShadow: '0 0 50px rgba(255,255,255,0.2)' }}>
+            <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CheckCircle size={48} color="#34c759" />
             </div>
-            <h3 style={{ fontSize: 28, fontWeight: 500, marginBottom: 8 }}>Alerts Sent</h3>
-            <p style={{ fontSize: 16, opacity: 0.9, fontWeight: 500 }}>{result?.sent} contacts have been notified successfully.</p>
           </div>
-          <button onClick={reset} className="btn-premium glass" style={{ width: '100%', padding: 16, borderRadius: 16, fontSize: 15, border: '2px solid rgba(255,255,255,0.4)', color: '#fff' }}>
-            Dismiss Status
-          </button>
+          
+          <h3 style={{ fontSize: 32, fontWeight: 700, marginBottom: 12, letterSpacing: '-0.04em' }}>SOS Active</h3>
+          <p style={{ fontSize: 17, opacity: 0.9, fontWeight: 600, maxWidth: 280, textAlign: 'center', lineHeight: 1.4 }}>
+            Direct live signal established. Your guardians are following you now.
+          </p>
+          
+          <div style={{ marginTop: 40, display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(0,0,0,0.1)', padding: '12px 24px', borderRadius: 100 }}>
+             <div className="animate-pulse" style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff' }} />
+             <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.05em' }}>LIVE TRACKING ENABLED</span>
+          </div>
         </div>
       )}
 

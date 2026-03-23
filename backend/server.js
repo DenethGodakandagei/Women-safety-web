@@ -15,7 +15,7 @@ const app = express();
 // Log incoming to verify traffic
 app.use(morgan('dev'));
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://192.168.8.148:5173'],
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -63,8 +63,9 @@ app.use((err, req, res, next) => {
 const PORT = 5000;
 mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.log('--- MongoDB Connected ---');
-  app.listen(PORT, () => {
-    console.log(`--- Server Running on ${PORT} ---`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`--- Server Running on 0.0.0.0:${PORT} ---`);
+    console.log(`--- Accessible via http://192.168.8.148:${PORT} ---`);
   });
 }).catch(err => {
   console.error('--- MongoDB Connection Error ---', err);

@@ -4,9 +4,16 @@ const sosController = require('../controllers/sosController');
 
 const router = express.Router();
 
-// All SOS routes require authentication
+// ─── PUBLIC ROUTES ────────────────────────────────────────────────────────────
+// Emergency contacts need to track without being logged in
+router.get('/public/:sessionId', sosController.getPublicSOSSession);
+
+// ─── PROTECTED ROUTES ─────────────────────────────────────────────────────────
 router.use(authController.protect);
 
 router.post('/trigger', sosController.triggerSOS);
+
+// Protected route for the victim's device to push coordinates
+router.patch('/update-location/:sessionId', sosController.updateSOSLocation);
 
 module.exports = router;

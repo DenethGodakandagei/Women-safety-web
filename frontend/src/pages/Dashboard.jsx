@@ -307,6 +307,7 @@ const Dashboard = () => {
 
   const [sosState, setSosState] = useState('idle'); // idle | sending | sent | error
   const [sosMessage, setSosMessage] = useState('');
+  const [activeSessionId, setActiveSessionId] = useState(null);
 
   const triggerSOS = async () => {
     if (!userLocation) {
@@ -316,7 +317,7 @@ const Dashboard = () => {
     }
 
     setSosState('sending');
-    setSosMessage("Communicating your live coordinates to all emergency guardians across SMS and Email networks.");
+    setSosMessage("Initializing secure live session and notifying guardians...");
 
     try {
       const { data } = await api.post('/sos/trigger', {
@@ -325,10 +326,35 @@ const Dashboard = () => {
       });
       setSosState('sent');
       setSosMessage(data.message);
+      setActiveSessionId(data.data.sessionId);
     } catch (err) {
       setSosState('error');
       setSosMessage(err.response?.data?.message || "Emergency gateway timed out. Please retry or call local emergency services directly.");
     }
+  };
+
+  // Real-time location sync during active SOS
+  useEffect(() => {
+    let interval;
+    if (activeSessionId && sosState === 'sent' && userLocation) {
+      interval = setInterval(async () => {
+        try {
+          await api.patch(`/sos/update-location/${activeSessionId}`, {
+            latitude: userLocation.lat,
+            longitude: userLocation.lng
+          });
+          console.log('[LiveSOS] Syncing location...');
+        } catch (err) {
+          console.error('[LiveSOS] Sync failed:', err.message);
+        }
+      }, 10000); // Sync every 10 seconds
+    }
+    return () => clearInterval(interval);
+  }, [activeSessionId, sosState, userLocation]);
+
+  const dismissSOS = () => {
+    setSosState('idle');
+    setActiveSessionId(null);
   };
 
   useEffect(() => {
@@ -392,7 +418,7 @@ const Dashboard = () => {
         <SOSOverlay 
           state={sosState} 
           message={sosMessage} 
-          onClose={() => setSosState('idle')} 
+          onClose={dismissSOS} 
         />
       </AnimatePresence>
       

@@ -1,17 +1,11 @@
 const axios = require('axios');
 const User = require('../models/User');
+const SOSSession = require('../models/SOSSession');
 const sendEmail = require('../utils/email');
 
 /**
  * POST /api/v1/sos/trigger
  * Body: { latitude, longitude }
- * Protected route – req.user is set by authController.protect
- *
- * Steps:
- *  1. Load the logged-in user + their emergency contacts
- *  2. Build a Google Maps link from the supplied coordinates
- *  3. Send an SMS to every contact via TextLK
- *  4. Send an Email to every contact via NodeMailer
  */
 exports.triggerSOS = async (req, res) => {
   try {
@@ -34,55 +28,59 @@ exports.triggerSOS = async (req, res) => {
       });
     }
 
-    // 2. Build Google Maps live-location link
+    // 2. Create a Live SOS Session
+    const session = await SOSSession.create({
+      user: req.user.id,
+      currentLocation: { lat: latitude, lng: longitude },
+      locationHistory: [{ lat: latitude, lng: longitude }]
+    });
+
+    // 4. Build Links
+    const frontendUrl = process.env.FRONTEND_URL || req.get('origin') || 'http://localhost:5173';
+    const liveLink = `${frontendUrl}/sos/track/${session._id}`;
     const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-    // 3. Compose message
+    // 5. Compose message
     const message =
-      `🚨 EMERGENCY ALERT 🚨\n` +
-      `${user.name} needs immediate help!\n\n` +
-      `📍 Live Location:\n${mapsLink}\n\n` +
-      `Please respond immediately or call emergency services.\n` +
-      `– SheShield Safety App`;
+      `🚨 EMERGENCY ALERT: ${user.name.toUpperCase()} 🚨\n\n` +
+      `IMMEDIATE HELP NEEDED! I am in danger.\n\n` +
+      `🛰️ TRACK MY LIVE MOVEMENT:\n${liveLink}\n\n` +
+      `📍 STATIC LOCATION (Google Maps):\n${mapsLink}\n\n` +
+      `Please respond or call emergency services.\n` +
+      `– SheShield Safety Network`;
 
-    // 4. Send SMS to every contact
+    // 6. Send SMS to every contact
     const smsResults = await Promise.allSettled(
       user.emergencyContacts.map((contact) =>
         sendTextLKSms(contact.phone, message)
       )
     );
 
-    // 5. Send Email to every contact (if email is present)
+    // 6. Send Email to every contact
     const emailResults = await Promise.allSettled(
       user.emergencyContacts
         .filter((c) => c.email)
         .map((contact) =>
           sendEmail({
             email: contact.email,
-            subject: `🚨 SHE-SHIELD SOS ALERT: ${user.name} 🚨`,
+            subject: `🚨 EMERGENCY: ${user.name} 🚨`,
             message,
           })
         )
     );
 
-    // 6. Summarise results 
     const smsSent = smsResults.filter((r) => r.status === 'fulfilled').length;
     const emailsSent = emailResults.filter((r) => r.status === 'fulfilled').length;
 
-    console.log(`[SOS] User: ${user.name} | SMS Sent: ${smsSent} | Email Sent: ${emailsSent}`);
-
     return res.status(200).json({
       status: 'success',
-      message: `SOS alert sent to ${smsSent} contact(s) via SMS and ${emailsSent} via Email.`,
+      message: `SOS live + static links sent to ${smsSent} contacts via SMS and ${emailsSent} via Email.`,
       data: {
+        sessionId: session._id,
+        liveLink,
+        mapsLink,
         smsSent,
-        emailsSent,
-        location: { latitude, longitude, mapsLink },
-        contactsNotified: user.emergencyContacts.map((c) => ({
-          name: c.name,
-          phone: c.phone,
-          email: c.email
-        })),
+        emailsSent
       },
     });
   } catch (err) {
@@ -93,6 +91,62 @@ exports.triggerSOS = async (req, res) => {
     });
   }
 };
+
+/**
+ * PATCH /api/v1/sos/update-location/:sessionId
+ * Protected - Used by the device that triggered SOS
+ */
+exports.updateSOSLocation = async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+    const { sessionId } = req.params;
+
+    const session = await SOSSession.findOneAndUpdate(
+      { _id: sessionId, user: req.user.id, status: 'active' },
+      { 
+        $set: { currentLocation: { lat: latitude, lng: longitude } },
+        $push: { locationHistory: { lat: latitude, lng: longitude } }
+      },
+      { new: true }
+    );
+
+    if (!session) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No active SOS session found for this ID.'
+      });
+    }
+
+    res.status(200).json({ status: 'success', data: { session } });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+};
+
+/**
+ * GET /api/v1/sos/public/:sessionId
+ * Public - Used by emergency contacts to track
+ */
+exports.getPublicSOSSession = async (req, res) => {
+  try {
+    const session = await SOSSession.findById(req.params.sessionId)
+      .populate('user', 'name phone')
+      .select('-locationHistory');
+
+    if (!session || session.status !== 'active') {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'This SOS tracking session is no longer active.'
+      });
+    }
+
+    res.status(200).json({ status: 'success', data: { session } });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+};
+
+// ... (sendTextLKSms helper stays the same)
 
 // ─── TextLK SMS helper ────────────────────────────────────────────────────────
 async function sendTextLKSms(to, message) {
