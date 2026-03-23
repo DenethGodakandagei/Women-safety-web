@@ -1,5 +1,6 @@
 const axios = require('axios');
 const User = require('../models/User');
+const sendEmail = require('../utils/email');
 
 /**
  * POST /api/v1/sos/trigger
@@ -10,6 +11,7 @@ const User = require('../models/User');
  *  1. Load the logged-in user + their emergency contacts
  *  2. Build a Google Maps link from the supplied coordinates
  *  3. Send an SMS to every contact via TextLK
+ *  4. Send an Email to every contact via NodeMailer
  */
 exports.triggerSOS = async (req, res) => {
   try {
@@ -43,30 +45,43 @@ exports.triggerSOS = async (req, res) => {
       `Please respond immediately or call emergency services.\n` +
       `– SheShield Safety App`;
 
-    // 4. Send SMS to every contact (fire in parallel)
+    // 4. Send SMS to every contact
     const smsResults = await Promise.allSettled(
       user.emergencyContacts.map((contact) =>
         sendTextLKSms(contact.phone, message)
       )
     );
 
-    // 5. Summarise results
-    const sent = smsResults.filter((r) => r.status === 'fulfilled').length;
-    const failed = smsResults.filter((r) => r.status === 'rejected').length;
+    // 5. Send Email to every contact (if email is present)
+    const emailResults = await Promise.allSettled(
+      user.emergencyContacts
+        .filter((c) => c.email)
+        .map((contact) =>
+          sendEmail({
+            email: contact.email,
+            subject: `🚨 SHE-SHIELD SOS ALERT: ${user.name} 🚨`,
+            message,
+          })
+        )
+    );
 
-    console.log(`[SOS] User: ${user.name} | Sent: ${sent} | Failed: ${failed}`);
-    console.log('[SOS] Results:', smsResults);
+    // 6. Summarise results 
+    const smsSent = smsResults.filter((r) => r.status === 'fulfilled').length;
+    const emailsSent = emailResults.filter((r) => r.status === 'fulfilled').length;
+
+    console.log(`[SOS] User: ${user.name} | SMS Sent: ${smsSent} | Email Sent: ${emailsSent}`);
 
     return res.status(200).json({
       status: 'success',
-      message: `SOS alert sent to ${sent} contact(s).`,
+      message: `SOS alert sent to ${smsSent} contact(s) via SMS and ${emailsSent} via Email.`,
       data: {
-        sent,
-        failed,
+        smsSent,
+        emailsSent,
         location: { latitude, longitude, mapsLink },
         contactsNotified: user.emergencyContacts.map((c) => ({
           name: c.name,
           phone: c.phone,
+          email: c.email
         })),
       },
     });

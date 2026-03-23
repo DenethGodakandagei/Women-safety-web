@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import EmergencyContacts from '../components/EmergencyContacts';
 import SOSTracker from '../components/SOSTracker';
@@ -55,7 +56,7 @@ const ProgressBar = ({ value, color, max = 100 }) => (
 );
 
 // ─── Overview tab ─────────────────────────────────────────────────────────────
-const OverviewTab = ({ user, contacts, userLocation, stats }) => {
+const OverviewTab = ({ user, contacts, userLocation, stats, onSOS }) => {
   const isSafe = stats.riskLevel === 'Safe' || stats.riskLevel === 'Low';
   const statusColor = isSafe ? '#34c759' : stats.riskLevel === 'Moderate' ? '#ff9500' : '#ff3b30';
 
@@ -81,7 +82,7 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
           </div>
         </div>
 
-        <div className="card-apple sos-card-mobile-top" style={{
+        <div className="card-apple sos-card-mobile-top" onClick={onSOS} style={{
           background: 'linear-gradient(135deg, #ff3b30 0%, #ff6b6b 100%)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', gap: 16, border: 'none', position: 'relative', overflow: 'hidden',
@@ -212,6 +213,84 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
   );
 };
 
+const SOSOverlay = ({ state, message, onClose }) => {
+  if (state === 'idle') return null;
+  
+  const isError = state === 'error';
+  const isSent = state === 'sent';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(15px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24
+      }}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="card-apple"
+        style={{
+          maxWidth: 440, width: '100%', borderRadius: 32, padding: '48px 40px', textAlign: 'center',
+          background: 'rgba(255, 255, 255, 0.95)',
+          boxShadow: '0 32px 64px rgba(0,0,0,0.15)',
+          border: '1px solid rgba(0,0,0,0.05)'
+        }}
+      >
+        <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'center' }}>
+          {state === 'sending' && (
+            <div className="animate-pulse" style={{ width: 88, height: 88, borderRadius: '50%', background: 'rgba(255, 59, 48, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <PhoneCall size={44} color="#ff3b30" />
+            </div>
+          )}
+          {isSent && (
+            <div style={{ width: 88, height: 88, borderRadius: '50%', background: 'rgba(52, 199, 89, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ActivityIcon size={44} color="#34c759" />
+            </div>
+          )}
+          {isError && (
+            <div style={{ width: 88, height: 88, borderRadius: '50%', background: 'rgba(255, 59, 48, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <AlertTriangle size={44} color="#ff3b30" />
+            </div>
+          )}
+        </div>
+
+        <h2 style={{ fontSize: 32, color: '#1d1d1f', marginBottom: 12, letterSpacing: '-0.04em', fontWeight: 600 }}>
+          {state === 'sending' ? 'Sending SOS…' : isSent ? 'Alert Processed' : 'Alert Failed'}
+        </h2>
+        
+        <p style={{ fontSize: 16, color: '#636366', lineHeight: 1.5, marginBottom: 40, fontWeight: 500 }}>
+          {message}
+        </p>
+
+        {state !== 'sending' && (
+          <button 
+            onClick={onClose}
+            className="btn-premium"
+            style={{ 
+              width: '100%', 
+              background: isSent ? '#34c759' : '#ff3b30', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: 20, 
+              padding: '20px', 
+              fontSize: 17, 
+              fontWeight: 600,
+              boxShadow: isSent ? '0 8px 24px rgba(52, 199, 89, 0.3)' : '0 8px 24px rgba(255, 59, 48, 0.3)'
+            }}
+          >
+            {isSent ? 'Dismiss Status' : 'Cancel & Retry'}
+          </button>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+};
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -225,6 +304,32 @@ const Dashboard = () => {
   const [pickMode, setPickMode] = useState(false);
   const [pickedLocation, setPickedLocation] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+
+  const [sosState, setSosState] = useState('idle'); // idle | sending | sent | error
+  const [sosMessage, setSosMessage] = useState('');
+
+  const triggerSOS = async () => {
+    if (!userLocation) {
+      setSosState('error');
+      setSosMessage("Unable to acquire high-precision GPS signal. Please ensure location services are enabled.");
+      return;
+    }
+
+    setSosState('sending');
+    setSosMessage("Communicating your live coordinates to all emergency guardians across SMS and Email networks.");
+
+    try {
+      const { data } = await api.post('/sos/trigger', {
+        latitude: userLocation.lat,
+        longitude: userLocation.lng,
+      });
+      setSosState('sent');
+      setSosMessage(data.message);
+    } catch (err) {
+      setSosState('error');
+      setSosMessage(err.response?.data?.message || "Emergency gateway timed out. Please retry or call local emergency services directly.");
+    }
+  };
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -283,6 +388,14 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container" style={{ display: 'flex', height: '100vh', background: 'transparent' }}>
+      <AnimatePresence>
+        <SOSOverlay 
+          state={sosState} 
+          message={sosMessage} 
+          onClose={() => setSosState('idle')} 
+        />
+      </AnimatePresence>
+      
       {/* Sidebar */}
       <aside className="glass sidebar-apple" style={{ width: 72, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0', gap: 24, border: 'none', borderRight: '1px solid rgba(0,0,0,0.05)', zIndex: 100 }}>
         <div className="sidebar-logo animate-float" style={{ width: 44, height: 44, borderRadius: 16, background: 'linear-gradient(135deg, #ff3b30, #ff2d55)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, flexShrink: 0, boxShadow: '0 8px 16px rgba(255, 59, 48, 0.3)' }}>
@@ -338,7 +451,7 @@ const Dashboard = () => {
           </div>
 
           <Routes>
-            <Route path="overview" element={<OverviewTab user={user} contacts={contacts} userLocation={userLocation} stats={stats} />} />
+            <Route path="overview" element={<OverviewTab user={user} contacts={contacts} userLocation={userLocation} stats={stats} onSOS={triggerSOS} />} />
             <Route path="contacts" element={<EmergencyContacts />} />
             <Route path="sos" element={<SOSTracker contacts={contacts} />} />
             <Route path="incidents" element={

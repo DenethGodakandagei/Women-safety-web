@@ -120,7 +120,7 @@ const SOSPanel = ({ location, contacts }) => {
               </div>
             )}
             {!hasLocation && (
-              <div style={{ background: 'rgba(0, 122, 255, 0.08)', borderRadius: 14, padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#007aff', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ background: 'rgba(255, 59, 48, 0.08)', borderRadius: 14, padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#ff3b30', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <NavigationIcon size={18} className="animate-pulse" /> Acquiring high-precision GPS…
               </div>
             )}
@@ -243,14 +243,14 @@ const LiveMap = ({ location, onLocationUpdate }) => {
         title: 'You',
         icon: {
           path: mapsApi.SymbolPath.CIRCLE,
-          scale: 12, fillColor: '#007aff', fillOpacity: 1,
+          scale: 12, fillColor: '#ff3b30', fillOpacity: 1,
           strokeColor: '#fff', strokeWeight: 4,
         },
       });
       circleRef.current = new mapsApi.Circle({
         map: mapObj.current, center, radius: 100,
-        fillColor: '#007aff', fillOpacity: 0.1,
-        strokeColor: '#007aff', strokeOpacity: 0.2, strokeWeight: 1,
+        fillColor: '#ff3b30', fillOpacity: 0.1,
+        strokeColor: '#ff3b30', strokeOpacity: 0.2, strokeWeight: 1,
       });
     } catch (err) {
       setMapError('Google Maps failed to initialize.');
@@ -295,8 +295,8 @@ const LiveMap = ({ location, onLocationUpdate }) => {
     <div className="card-apple" style={{ overflow: 'hidden', padding: 0 }}>
       <div style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div className="glass-dark" style={{ width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,122,255,0.05)' }}>
-            <MapPin size={22} color="#007aff" />
+          <div className="glass-dark" style={{ width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,59,48,0.05)' }}>
+            <MapPin size={22} color="#ff3b30" />
           </div>
           <div>
             <h3 style={{ fontSize: 18, fontWeight: 500, color: '#1d1d1f', margin: 0, letterSpacing: '-0.02em' }}>Live Location Tracking</h3>
@@ -308,7 +308,7 @@ const LiveMap = ({ location, onLocationUpdate }) => {
         <button
           onClick={watching ? stopTracking : startTracking}
           className={watching ? 'btn-premium glass' : 'btn-premium btn-premium-active'}
-          style={{ padding: '10px 20px', borderRadius: 14, background: watching ? 'rgba(0,0,0,0.03)' : '#007aff', color: watching ? '#1d1d1f' : '#fff' }}
+          style={{ padding: '10px 20px', borderRadius: 14, background: watching ? 'rgba(0,0,0,0.03)' : '#ff3b30', color: watching ? '#1d1d1f' : '#fff' }}
         >
           {watching ? <><Square size={14} fill="currentColor" /> Stop</> : <><Play size={14} fill="currentColor" /> Start</>}
         </button>
