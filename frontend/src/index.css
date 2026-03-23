@@ -80,7 +80,7 @@
   .btn-premium:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    background: #f5f5f7;
+    background: #fff;
     border-color: rgba(0,0,0,0.15);
   }
 
@@ -92,9 +92,11 @@
   }
 
   .btn-premium-active:hover {
-    box-shadow: 0 12px 28px rgba(255, 59, 48, 0.45);
+    background: #fff;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    box-shadow: 0 12px 28px rgba(255, 59, 48, 0.15);
     transform: translateY(-2px);
-    filter: brightness(1.05) contrast(1.05);
   }
 
   .card-apple {

@@ -19,8 +19,8 @@ const NavItem = ({ icon, active, onClick, badge }) => (
   <button onClick={onClick} style={{
     position: 'relative', width: 44, height: 44, borderRadius: 14,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: active ? 'rgba(0,122,255,0.1)' : 'transparent',
-    color: active ? '#007aff' : '#8e8e93',
+    background: active ? 'rgba(255, 59, 48, 0.1)' : 'transparent',
+    color: active ? '#ff3b30' : '#8e8e93',
     border: 'none', cursor: 'pointer',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     transform: active ? 'scale(1.1)' : 'scale(1)'
@@ -107,8 +107,8 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
         <div className="card-apple" style={{ padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div className="glass-dark" style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,122,255,0.05)' }}>
-                <NavigationIcon size={18} color="#007aff" />
+              <div className="glass-dark" style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 59, 48, 0.05)' }}>
+                <NavigationIcon size={18} color="#ff3b30" />
               </div>
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.03em' }}>Live Tracking</h3>
@@ -120,8 +120,8 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
             <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(#d1d1d6 0.5px, transparent 0.5px)', backgroundSize: '16px 16px', opacity: 0.3 }} />
             {userLocation ? (
               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#007aff', border: '3px solid #fff', boxShadow: '0 0 15px rgba(0,122,255,0.8)', animation: 'pulse-subtle 2s infinite' }} />
-                <p style={{ fontSize: 11, fontWeight: 600, color: '#007aff', marginTop: 8, background: 'rgba(255,255,255,0.9)', padding: '2px 8px', borderRadius: 6 }}>USER_ACTIVE</p>
+                <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#ff3b30', border: '3px solid #fff', boxShadow: '0 0 15px rgba(255, 59, 48, 0.8)', animation: 'pulse-subtle 2s infinite' }} />
+                <p style={{ fontSize: 11, fontWeight: 600, color: '#ff3b30', marginTop: 8, background: 'rgba(255,255,255,0.9)', padding: '2px 8px', borderRadius: 6 }}>USER_ACTIVE</p>
               </div>
             ) : (
               <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -183,7 +183,7 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
                 <span style={{ fontSize: 11, fontWeight: 800, color: '#8e8e93' }}>REPORTS VOL</span>
                 <span style={{ fontSize: 11, fontWeight: 800, color: '#1d1d1f' }}>LOW</span>
               </div>
-              <ProgressBar value={20} color="#007aff" />
+              <ProgressBar value={20} color="#ff3b30" />
             </div>
           </div>
         </div>
@@ -285,7 +285,7 @@ const Dashboard = () => {
     <div className="dashboard-container" style={{ display: 'flex', height: '100vh', background: 'transparent' }}>
       {/* Sidebar */}
       <aside className="glass sidebar-apple" style={{ width: 72, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0', gap: 24, border: 'none', borderRight: '1px solid rgba(0,0,0,0.05)', zIndex: 100 }}>
-        <div className="sidebar-logo animate-float" style={{ width: 44, height: 44, borderRadius: 16, background: 'linear-gradient(135deg, #007aff, #00c6ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, flexShrink: 0, boxShadow: '0 8px 16px rgba(0,122,255,0.3)' }}>
+        <div className="sidebar-logo animate-float" style={{ width: 44, height: 44, borderRadius: 16, background: 'linear-gradient(135deg, #ff3b30, #ff2d55)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, flexShrink: 0, boxShadow: '0 8px 16px rgba(255, 59, 48, 0.3)' }}>
           <Shield size={24} color="#fff" />
         </div>
 
