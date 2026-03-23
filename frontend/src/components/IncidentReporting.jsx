@@ -2,20 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Plus, Edit2, Trash2, MapPin, Filter, ThumbsUp, CheckCircle, X, 
   Search, Siren, Banknote, Eye, AlertTriangle, Moon, 
-  UserSearch, Map, Loader2, Save, Frown, MessageSquareAlert,
-  AlertCircle
+  Map as MapIcon, Loader2, Save, Frown, AlertCircle
 } from 'lucide-react';
 import api from '../utils/api';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const INCIDENT_TYPES = [
-  { value: 'harassment',          label: 'Harassment',           icon: <MessageSquareAlert size={14}/>, color: '#f97316' },
+  { value: 'harassment',          label: 'Harassment',           icon: <AlertCircle size={14}/>, color: '#f97316' },
   { value: 'assault',             label: 'Assault',              icon: <Siren size={14}/>,              color: '#ef4444' },
   { value: 'theft',               label: 'Theft',                icon: <Banknote size={14}/>,           color: '#eab308' },
   { value: 'stalking',            label: 'Stalking',             icon: <Eye size={14}/>,                color: '#8b5cf6' },
   { value: 'unsafe_area',         label: 'Unsafe Area',          icon: <AlertTriangle size={14}/>,      color: '#f43f5e' },
   { value: 'poor_lighting',       label: 'Poor Lighting',        icon: <Moon size={14}/>,               color: '#64748b' },
-  { value: 'suspicious_activity', label: 'Suspicious Activity',  icon: <UserSearch size={14}/>,         color: '#0ea5e9' },
+  { value: 'suspicious_activity', label: 'Suspicious Activity',  icon: <Search size={14}/>,             color: '#0ea5e9' },
   { value: 'other',               label: 'Other',                icon: <MapPin size={14}/>,             color: '#6b7280' },
 ];
 
@@ -33,16 +32,16 @@ const sevInfo  = (val) => SEVERITY_LEVELS.find(s => s.value === val) || SEVERITY
 
 // ─── EMPTY STATE ──────────────────────────────────────────────────────────────
 const EmptyState = ({ onAdd }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', textAlign: 'center', gap: 16 }}>
-    <div style={{ background: '#f5f5f7', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <MapPin size={40} color="#86868b" />
+  <div className="card-apple" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 48px', textAlign: 'center', gap: 28, background: 'rgba(255,255,255,0.3)', backdropFilter: 'blur(30px)' }}>
+    <div className="glass-dark" style={{ width: 120, height: 120, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 59, 48, 0.03)' }}>
+      <MapPin size={56} color="#ff3b30" className="animate-float" strokeWidth={1.5} />
     </div>
-    <div>
-      <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', margin: '0 0 6px' }}>No incidents reported yet</h3>
-      <p style={{ fontSize: 14, color: '#86868b', margin: 0 }}>Help keep the community safe by reporting danger zones</p>
+    <div style={{ maxWidth: 360 }}>
+      <h3 style={{ fontSize: 28, fontWeight: 500, color: '#1d1d1f', margin: '0 0 12px', letterSpacing: '-0.04em' }}>Community Safety</h3>
+      <p style={{ fontSize: 17, color: '#636366', margin: 0, fontWeight: 500, lineHeight: 1.6 }}>Help your neighborhood stay informed by reporting local danger zones or safety hazards.</p>
     </div>
-    <button onClick={onAdd} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', borderRadius: 12, background: '#e05a3a', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-      <Plus size={16}/> Report First Incident
+    <button onClick={onAdd} className="btn-premium btn-premium-active animate-pulse-subtle" style={{ padding: '16px 40px', fontSize: 16 }}>
+      <Plus size={20}/> Report New Incident
     </button>
   </div>
 );
@@ -63,54 +62,64 @@ const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) =
   };
 
   return (
-    <div style={{ background: '#fff', borderRadius: 18, border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', overflow: 'hidden', transition: 'transform 0.15s, box-shadow 0.15s' }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.09)'; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.05)'; }}
-    >
-      {/* Severity bar */}
-      <div style={{ height: 4, background: s.color, opacity: 0.7 }}/>
+    <div className="card-apple" style={{ 
+      padding: '24px',
+      position: 'relative',
+      overflow: 'hidden',
+      transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
+      border: '1px solid rgba(255,255,255,0.4)',
+      background: 'rgba(255,255,255,0.7)',
+      backdropFilter: 'blur(16px)',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.03)'
+    }}>
+      {/* Subtle indicator bar */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: s.color, opacity: 0.8 }}/>
 
-      <div style={{ padding: '16px 18px' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: t.color, background: t.color + '18', padding: '2px 8px', borderRadius: 99, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
-                {t.icon} {t.label}
-              </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: s.color, background: s.bg, padding: '2px 8px', borderRadius: 99 }}>{s.label.toUpperCase()}</span>
-              {incident.status === 'resolved' && <span style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', background: '#f0fdf4', padding: '2px 8px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle size={10} /> Resolved</span>}
-              {incident.anonymous && <span style={{ fontSize: 11, color: '#86868b', background: '#f5f5f7', padding: '2px 8px', borderRadius: 99 }}>Anonymous</span>}
-            </div>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{incident.title}</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="glass-dark" style={{ width: 40, height: 40, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${t.color}10` }}>
+            <span style={{ color: t.color }}>{t.icon}</span>
           </div>
-          {isOwner && (
-            <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-              <button onClick={() => onEdit(incident)} title="Edit" style={{ width: 28, height: 28, borderRadius: 8, border: 'none', background: '#f5f5f7', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Edit2 size={14} /></button>
-              <button onClick={() => onDelete(incident._id)} title="Delete" style={{ width: 28, height: 28, borderRadius: 8, border: 'none', background: '#fef2f2', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={14}/></button>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: s.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label} Severity</span>
+              {incident.status === 'resolved' && <span style={{ fontSize: 10, fontWeight: 600, color: '#34c759', display: 'flex', alignItems: 'center', gap: 3 }}><CheckCircle size={10} /> Resolved</span>}
             </div>
-          )}
+            <h3 style={{ fontSize: 17, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.01em' }}>{incident.title}</h3>
+          </div>
         </div>
-
-        {/* Description */}
-        <p style={{ fontSize: 13, color: '#555', lineHeight: 1.55, margin: '0 0 12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{incident.description}</p>
-
-        {/* Location */}
-        {incident.location?.address && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10, fontSize: 12, color: '#86868b' }}>
-            <MapPin size={12} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{incident.location.address}</span>
+        {isOwner && (
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={() => onEdit(incident)} className="glass-dark" style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Edit2 size={14} /></button>
+            <button onClick={() => onDelete(incident._id)} className="glass-dark" style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: 'rgba(255, 59, 48, 0.1)', color: '#ff3b30', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={14}/></button>
           </div>
         )}
+      </div>
 
-        {/* Footer */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid #f5f5f7' }}>
-          <div style={{ fontSize: 12, color: '#86868b' }}>
-            By <strong>{incident.reportedBy?.name || 'Anonymous'}</strong> · {timeAgo(incident.createdAt)}
-          </div>
-          <button onClick={() => onUpvote(incident._id)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 99, border: `1px solid ${upvoted ? '#e05a3a' : '#e5e5e7'}`, background: upvoted ? '#fef3f0' : '#fff', color: upvoted ? '#e05a3a' : '#86868b', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
-            <ThumbsUp size={12}/> {incident.upvotes || 0}
-          </button>
+      <p style={{ fontSize: 14, color: '#636366', lineHeight: 1.6, margin: '0 0 20px', fontWeight: 500 }}>{incident.description}</p>
+
+      {incident.location?.address && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: '#8e8e93', fontWeight: 600 }}>
+          <MapPin size={14} /> <span>{incident.location.address}</span>
         </div>
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.04)', paddingTop: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 28, background: 'linear-gradient(135deg, #eee, #ddd)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 600 }}>
+            {incident.reportedBy?.name?.[0] || 'A'}
+          </div>
+          <div style={{ fontSize: 12, color: '#8e8e93', fontWeight: 600 }}>
+            {incident.anonymous ? 'Anonymous' : incident.reportedBy?.name} · <span style={{ fontWeight: 500 }}>{timeAgo(incident.createdAt)}</span>
+          </div>
+        </div>
+        <button 
+          onClick={() => onUpvote(incident._id)} 
+          className={upvoted ? 'btn-premium-active' : 'btn-premium'}
+          style={{ padding: '6px 14px', fontSize: 12, borderRadius: 12 }}
+        >
+          <ThumbsUp size={14} fill={upvoted ? 'currentColor' : 'none'}/> {incident.upvotes || 0}
+        </button>
       </div>
     </div>
   );
@@ -196,101 +205,91 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
     }
   };
 
-  const inp = { width: '100%', padding: '10px 13px', borderRadius: 10, border: '1.5px solid #e5e5e7', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', background: '#fafafa', color: '#1d1d1f' };
-  const label = { fontSize: 12, fontWeight: 700, color: '#555', letterSpacing: '0.04em', marginBottom: 5, display: 'block' };
+  const inp = { 
+    width: '100%', 
+    padding: '16px 20px', 
+    borderRadius: 16, 
+    border: 'none', 
+    fontSize: 15, 
+    fontFamily: 'inherit', 
+    outline: 'none', 
+    boxSizing: 'border-box', 
+    background: 'rgba(0,0,0,0.03)', 
+    color: '#1d1d1f',
+    fontWeight: 500,
+    transition: 'all 0.2s'
+  };
+  const label = { fontSize: 11, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, display: 'block' };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: '#fff', borderRadius: 24, width: '100%', maxWidth: 560, maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.2)' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="card-apple" style={{ background: 'rgba(255,255,255,0.95)', borderRadius: 32, width: '100%', maxWidth: 640, maxHeight: '92vh', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.5)', padding: 0, boxShadow: '0 40px 100px rgba(0,0,0,0.15)' }}>
         {/* Modal header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 24px 16px', borderBottom: '1px solid #f0f0f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: isEdit ? '#f5f5f7' : '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {isEdit ? <Edit2 size={20} color="#555" /> : <Siren size={20} color="#ef4444" />}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '40px 40px 32px', position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <div className="glass-dark" style={{ width: 64, height: 64, borderRadius: 20, background: isEdit ? 'rgba(0,0,0,0.03)' : 'rgba(255, 59, 48, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {isEdit ? <Edit2 size={28} color="#1d1d1f" /> : <Siren size={28} color="#ff3b30" />}
             </div>
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1d1d1f', margin: '0 0 2px' }}>{isEdit ? 'Edit Incident' : 'Report Danger Zone'}</h2>
-              <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Help keep the community informed and safe</p>
+              <h2 style={{ fontSize: 28, fontWeight: 500, color: '#1d1d1f', margin: '0', letterSpacing: '-0.04em' }}>{isEdit ? 'Update Details' : 'Report Incident'}</h2>
+              <p style={{ fontSize: 15, color: '#636366', margin: '6px 0 0', fontWeight: 500 }}>Help other citizens stay safe by sharing details.</p>
             </div>
           </div>
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: '#f5f5f7', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }}><X size={18}/></button>
+          <button onClick={onClose} style={{ position: 'absolute', top: 40, right: 40, width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.03)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1d1d1f' }}><X size={24}/></button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '20px 24px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {error && <div style={{ padding: '10px 14px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', fontSize: 13, border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 8 }}><AlertTriangle size={16} /> {error}</div>}
+        <form onSubmit={handleSubmit} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {error && <div style={{ padding: '14px 18px', borderRadius: 14, background: 'rgba(255, 59, 48, 0.08)', color: '#ff3b30', fontSize: 14, fontWeight: 600, border: '1px solid rgba(255, 59, 48, 0.1)', display: 'flex', alignItems: 'center', gap: 10 }}><AlertCircle size={18} /> {error}</div>}
 
           {/* Title */}
           <div>
-            <label style={label}>INCIDENT TITLE *</label>
-            <input style={inp} value={form.title} onChange={e => set('title', e.target.value)} placeholder="Brief description of the danger…" required maxLength={120}/>
+            <label style={label}>Incident Title</label>
+            <input value={form.title} onChange={e => set('title', e.target.value)} style={inp} placeholder="e.g. Broken streetlight, Heavy harassment zone..." required maxLength={120}/>
           </div>
 
-          {/* Type + Severity */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
-              <label style={label}>INCIDENT TYPE *</label>
-              <select style={inp} value={form.type} onChange={e => set('type', e.target.value)}>
+              <label style={label}>Category</label>
+              <select value={form.type} onChange={e => set('type', e.target.value)} style={{ ...inp, appearance: 'none', cursor: 'pointer' }}>
                 {INCIDENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
             <div>
-              <label style={label}>SEVERITY *</label>
-              <select style={inp} value={form.severity} onChange={e => set('severity', e.target.value)}>
+              <label style={label}>Severity Level</label>
+              <select value={form.severity} onChange={e => set('severity', e.target.value)} style={{ ...inp, appearance: 'none', cursor: 'pointer' }}>
                 {SEVERITY_LEVELS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
           </div>
 
-          {/* Description */}
           <div>
-            <label style={label}>DESCRIPTION *</label>
-            <textarea style={{ ...inp, minHeight: 90, resize: 'vertical' }} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Describe what happened, when, and any relevant details…" required maxLength={1000}/>
+            <label style={label}>Detailed Description</label>
+            <textarea value={form.description} onChange={e => set('description', e.target.value)} style={{ ...inp, minHeight: 140, resize: 'none' }} placeholder="Share more context to help others..." required maxLength={1000}/>
           </div>
 
-          {/* Location */}
           <div>
-            <label style={label}>LOCATION *</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-              <input style={inp} type="number" step="any" value={form.location.lat} onChange={e => setLoc('lat', e.target.value)} placeholder="Latitude" required/>
-              <input style={inp} type="number" step="any" value={form.location.lng} onChange={e => setLoc('lng', e.target.value)} placeholder="Longitude" required/>
+            <label style={label}>Location Coordinates</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <input type="number" step="any" value={form.location.lat} onChange={e => setLoc('lat', e.target.value)} style={inp} placeholder="Latitude" required/>
+              <input type="number" step="any" value={form.location.lng} onChange={e => setLoc('lng', e.target.value)} style={inp} placeholder="Longitude" required/>
             </div>
-            <input style={{ ...inp, marginBottom: 8 }} value={form.location.address} onChange={e => setLoc('address', e.target.value)} placeholder="Address or landmark (optional)"/>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button type="button" onClick={useMyLocation} disabled={locLoading} style={{ flex: 1, padding: '8px', borderRadius: 10, border: '1.5px dashed #e05a3a', background: '#fef9f8', color: '#e05a3a', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                {locLoading ? <><Loader2 size={14} className="animate-spin" /> Getting…</> : <><MapPin size={14} /> Use My Location</>}
+            <div style={{ display: 'flex', gap: 16 }}>
+              <button type="button" onClick={useMyLocation} className="btn-premium" style={{ flex: 1, padding: '16px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f', borderRadius: 16 }}>
+                <Navigation size={18} /> My GPS
               </button>
-              <button type="button" onClick={() => onPickLocation(form)} style={{ flex: 1, padding: '8px', borderRadius: 10, border: '1.5px dashed #0ea5e9', background: '#f0f9ff', color: '#0ea5e9', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                <Map size={14} /> Pick on Map
+              <button type="button" onClick={() => onPickLocation(form)} className="btn-premium btn-premium-active" style={{ flex: 1, padding: '16px', borderRadius: 16 }}>
+                <MapIcon size={18} /> Pick on Map
               </button>
             </div>
-            {form.location.lat && form.location.lng && (
-              <p style={{ fontSize: 11, color: '#86868b', margin: '6px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <MapPin size={10} /> {parseFloat(form.location.lat).toFixed(5)}, {parseFloat(form.location.lng).toFixed(5)}
-              </p>
-            )}
           </div>
 
-          {/* Status (edit only) */}
-          {isEdit && (
-            <div>
-              <label style={label}>STATUS</label>
-              <select style={inp} value={form.status} onChange={e => set('status', e.target.value)}>
-                <option value="active">Active</option>
-                <option value="under_review">Under Review</option>
-                <option value="resolved">Resolved</option>
-              </select>
-            </div>
-          )}
-
-          {/* Anonymous */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14, color: '#555', fontWeight: 500, padding: '10px 14px', background: '#fafafa', borderRadius: 10, border: '1.5px solid #e5e5e7' }}>
-            <input type="checkbox" checked={form.anonymous} onChange={e => set('anonymous', e.target.checked)} style={{ width: 16, height: 16, accentColor: '#e05a3a' }}/>
-            Report anonymously (your name won't be shown publicly)
+          <label style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', fontSize: 15, color: '#1d1d1f', fontWeight: 600, padding: '20px', background: 'rgba(0,0,0,0.03)', borderRadius: 20 }}>
+            <input type="checkbox" checked={form.anonymous} onChange={e => set('anonymous', e.target.checked)} style={{ width: 24, height: 24, accentColor: '#ff3b30', borderRadius: 8 }}/>
+            Post report anonymously
           </label>
 
-          {/* Submit */}
-          <button type="submit" disabled={loading} style={{ padding: '13px', borderRadius: 12, background: loading ? '#ccc' : 'linear-gradient(135deg, #e05a3a, #c73e20)', color: '#fff', border: 'none', fontWeight: 800, fontSize: 15, cursor: loading ? 'not-allowed' : 'pointer', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-            {loading ? <><Loader2 size={18} className="animate-spin" /> Saving…</> : isEdit ? <><Save size={18} /> Update Incident</> : <><Siren size={18} /> Submit Report</>}
+          <button type="submit" disabled={loading} className="btn-premium btn-premium-active" style={{ padding: '18px', fontSize: 16, marginTop: 12 }}>
+            {loading ? <Loader2 size={24} className="animate-spin" /> : (isEdit ? 'Update Report' : 'Submit Security Report')}
           </button>
         </form>
       </div>
@@ -390,66 +389,69 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 14, background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Siren size={24} color="#ef4444" />
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div className="glass-dark" style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(255, 59, 48, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Siren size={32} color="#ff3b30" />
           </div>
           <div>
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Incident Reports</h2>
-            <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Report and track danger zones in your community</p>
+            <h2 style={{ fontSize: 32, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: '0' }}>Incident Reports</h2>
+            <p style={{ fontSize: 16, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Crowdsourced safety alerts and danger zone monitoring.</p>
           </div>
         </div>
-        <button onClick={() => { setEditTarget(null); setPendingPick(null); setShowForm(true); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 20px', borderRadius: 12, background: 'linear-gradient(135deg, #e05a3a, #c73e20)', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 14px rgba(224,90,58,0.35)', whiteSpace: 'nowrap' }}>
-          <Plus size={18}/> Report Incident
+        <button onClick={() => { setEditTarget(null); setPendingPick(null); setShowForm(true); }} className="btn-premium btn-premium-active animate-pulse-subtle" style={{ padding: '14px 28px', fontSize: 15 }}>
+          <Plus size={20}/> Report Incident
         </button>
       </div>
 
       {/* Pick mode banner – shown while user is on Safety Map tab selecting a point */}
       {awaitingPick && (
         <div style={{ padding: '12px 18px', background: 'linear-gradient(135deg,#0ea5e9,#0284c7)', color: '#fff', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <span style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}><Map size={18} /> Switch to the <strong>Safety Map</strong> tab and click anywhere to set the incident location.</span>
+          <span style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}><MapIcon size={18} /> Switch to the <strong>Safety Map</strong> tab and click anywhere to set the incident location.</span>
           <button onClick={() => { setAwaitingPick(false); onPickLocationMode && onPickLocationMode(false); setShowForm(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: '2px solid rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>Cancel</button>
         </div>
       )}
 
       {/* Filters bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '14px 18px', background: '#fff', borderRadius: 16, border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 160, background: '#f5f5f7', borderRadius: 10, padding: '7px 12px' }}>
-          <Search size={14} color="#86868b" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search incidents…" style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: '#1d1d1f', fontFamily: 'inherit', width: '100%' }}/>
+      <div className="card-apple" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', padding: '20px 24px', background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)' }}>
+        <div className="glass-dark" style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 280, borderRadius: 16, padding: '12px 20px', background: 'rgba(0,0,0,0.03)' }}>
+          <Search size={20} color="#8e8e93" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search safety reports..." style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 15, color: '#1d1d1f', width: '100%', fontWeight: 500 }}/>
         </div>
 
-        <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ padding: '7px 12px', borderRadius: 10, border: '1.5px solid #e5e5e7', fontSize: 13, background: '#fff', color: '#1d1d1f', fontFamily: 'inherit', cursor: 'pointer' }}>
-          <option value="">All Types</option>
-          {INCIDENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-        </select>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <select value={filterType} onChange={e => setFilterType(e.target.value)} className="btn-premium" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(0,0,0,0.03)', border: 'none', fontSize: 14 }}>
+            <option value="">All Categories</option>
+            {INCIDENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+          </select>
 
-        <select value={filterSev} onChange={e => setFilterSev(e.target.value)} style={{ padding: '7px 12px', borderRadius: 10, border: '1.5px solid #e5e5e7', fontSize: 13, background: '#fff', color: '#1d1d1f', fontFamily: 'inherit', cursor: 'pointer' }}>
-          <option value="">All Severities</option>
-          {SEVERITY_LEVELS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-        </select>
+          <select value={filterSev} onChange={e => setFilterSev(e.target.value)} className="btn-premium" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(0,0,0,0.03)', border: 'none', fontSize: 14 }}>
+            <option value="">All Severity</option>
+            {SEVERITY_LEVELS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
 
-        <button onClick={() => setMyOnly(m => !m)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 10, border: `1.5px solid ${myOnly ? '#e05a3a' : '#e5e5e7'}`, background: myOnly ? '#fef3f0' : '#fff', color: myOnly ? '#e05a3a' : '#86868b', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-          {myOnly ? <CheckCircle size={14}/> : <Filter size={14}/>} My Reports
-        </button>
+          <button onClick={() => setMyOnly(m => !m)} className={myOnly ? 'btn-premium btn-premium-active' : 'btn-premium'} style={{ padding: '12px 20px', fontSize: 14 }}>
+            {myOnly ? <CheckCircle size={18}/> : <Filter size={18}/>} <span>{myOnly ? 'Your Reports' : 'All Reports'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Stats summary */}
       {!loading && incidents.length > 0 && (
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', padding: '0 8px' }}>
           {['critical','high','medium','low'].map(sev => {
             const count = incidents.filter(i => i.severity === sev).length;
             const s = sevInfo(sev);
             return count > 0 ? (
-              <div key={sev} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 99, background: s.bg, border: `1px solid ${s.color}40` }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, display: 'inline-block' }}/>
-                <span style={{ fontSize: 12, fontWeight: 700, color: s.color }}>{count} {s.label}</span>
+              <div key={sev} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.5)', border: `1px solid ${s.color}20`, boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, boxShadow: `0 0 8px ${s.color}60` }}/>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#1d1d1f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{count} {s.label}</span>
               </div>
             ) : null;
           })}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 99, background: '#f5f5f7' }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#86868b' }}>{incidents.length} total reports</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.03)', color: '#8e8e93' }}>
+            <AlertCircle size={14} />
+            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.04em' }}>{incidents.length} TOTAL REPORTS</span>
           </div>
         </div>
       )}

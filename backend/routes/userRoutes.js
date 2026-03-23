@@ -17,6 +17,7 @@ router.patch('/updateMe', userController.updateMe);
 // Emergency Contacts
 router.get('/getEmergencyContacts', userController.getEmergencyContacts);
 router.post('/addEmergencyContact', userController.addEmergencyContact);
+router.patch('/updateEmergencyContact/:id', userController.updateEmergencyContact);
 router.delete('/deleteEmergencyContact/:id', userController.deleteEmergencyContact);
 
 module.exports = router;

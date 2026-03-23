@@ -116,3 +116,30 @@ exports.deleteEmergencyContact = async (req, res, next) => {
       });
     }
 };
+
+exports.updateEmergencyContact = async (req, res, next) => {
+  try {
+    const updatedContact = await EmergencyContact.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedContact) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No contact found with that ID'
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: { contact: updatedContact }
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+};

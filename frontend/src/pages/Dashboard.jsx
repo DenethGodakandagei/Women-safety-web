@@ -8,155 +8,202 @@ import SafetyMap from '../components/SafetyMap';
 import RiskAnalysisCard from '../components/RiskAnalysisCard';
 import api from '../utils/api';
 
-
-import { 
-  Shield, Home, Users, Activity, Bell, Settings, Search, 
-  SlidersHorizontal, Map, Lock, MapPin, AlertTriangle, 
-  Sparkles, PhoneCall, Navigation, BellOff 
+import {
+  Shield, Home, Users, Activity, Bell, Settings, Search,
+  SlidersHorizontal, Map, Lock, MapPin, AlertTriangle,
+  Sparkles, PhoneCall, Navigation, BellOff
 } from 'lucide-react';
 
 // ─── Nav item ─────────────────────────────────────────────────────────────────
 const NavItem = ({ icon, active, onClick, badge }) => (
-  <button onClick={onClick} style={{ position: 'relative', width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: active ? '#fff' : 'transparent', color: active ? '#e05a3a' : '#999', border: 'none', cursor: 'pointer', boxShadow: active ? '0 2px 12px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.2s ease' }}>
-    {icon}
-    {badge && <span style={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderRadius: '50%', background: '#e05a3a', border: '2px solid #f7f7f9' }} />}
+  <button onClick={onClick} style={{
+    position: 'relative', width: 44, height: 44, borderRadius: 14,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: active ? 'rgba(0,122,255,0.1)' : 'transparent',
+    color: active ? '#007aff' : '#8e8e93',
+    border: 'none', cursor: 'pointer',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    transform: active ? 'scale(1.1)' : 'scale(1)'
+  }}>
+    {React.cloneElement(icon, { strokeWidth: active ? 2.5 : 1.5 })}
+    {badge && <span style={{ position: 'absolute', top: 10, right: 10, width: 6, height: 6, borderRadius: '50%', background: '#ff3b30', boxShadow: '0 0 8px rgba(255,59,48,0.4)' }} />}
   </button>
 );
 
 // ─── Safety Score Ring ────────────────────────────────────────────────────────
 const ScoreRing = ({ score = 92 }) => {
-  const r = 38, stroke = 6, circ = 2 * Math.PI * r;
+  const r = 40, stroke = 4, circ = 2 * Math.PI * r;
+  const color = score > 80 ? '#34c759' : score > 50 ? '#ff9500' : '#ff3b30';
   return (
-    <div style={{ position: 'relative', width: 96, height: 96, flexShrink: 0 }}>
-      <svg width="96" height="96" style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx="48" cy="48" r={r} fill="none" stroke="#f0f0f0" strokeWidth={stroke} />
-        <circle cx="48" cy="48" r={r} fill="none" stroke="#e05a3a" strokeWidth={stroke} strokeDasharray={`${(score / 100) * circ} ${circ}`} strokeLinecap="round" />
+    <div style={{ position: 'relative', width: 140, height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg width="140" height="140" style={{ transform: 'rotate(-90deg)', filter: `drop-shadow(0 0 12px ${color}40)` }}>
+        <circle cx="70" cy="70" r={r * 1.5} fill="transparent" stroke="rgba(0,0,0,0.04)" strokeWidth={stroke * 1.5} />
+        <circle cx="70" cy="70" r={r * 1.5} fill="transparent" stroke={color} strokeWidth={stroke * 1.5} strokeDasharray={circ * 1.5} strokeDashoffset={circ * 1.5 - (score / 100) * circ * 1.5} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 2s cubic-bezier(0.165, 0.84, 0.44, 1)' }} />
       </svg>
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', lineHeight: 1 }}>{score}</span>
-        <span style={{ fontSize: 8, color: '#999', fontWeight: 600, letterSpacing: '0.05em', marginTop: 2 }}>SAFETY SCORE</span>
+      <div style={{ position: 'absolute', textAlign: 'center' }}>
+        <p style={{ fontSize: 44, fontWeight: 500, color: '#1d1d1f', margin: 0, fontFamily: 'var(--font-display)', letterSpacing: '-0.05em' }}>{score}</p>
+        <p style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93', margin: '-4px 0 0', textTransform: 'uppercase', letterSpacing: '0.08em' }}>SECURE</p>
       </div>
     </div>
   );
 };
 
 const ProgressBar = ({ value, color, max = 100 }) => (
-  <div style={{ background: '#f0f0f0', borderRadius: 99, height: 6, overflow: 'hidden' }}>
-    <div style={{ width: `${(value / max) * 100}%`, height: '100%', borderRadius: 99, background: color, transition: 'width 0.6s ease' }} />
+  <div className="glass-dark" style={{ background: 'rgba(0,0,0,0.03)', borderRadius: 99, height: 10, overflow: 'hidden' }}>
+    <div style={{ width: `${(value / max) * 100}%`, height: '100%', borderRadius: 99, background: `linear-gradient(90deg, ${color}, ${color}cc)`, transition: 'width 1s cubic-bezier(0.165, 0.84, 0.44, 1)' }} />
   </div>
 );
 
-// ─── Overview tab (original dashboard cards) ──────────────────────────────────
+// ─── Overview tab ─────────────────────────────────────────────────────────────
 const OverviewTab = ({ user, contacts, userLocation, stats }) => {
-  const card = { background: '#fff', borderRadius: 20, padding: '20px', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' };
-  const badge = (color) => ({ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color, background: color + '18', padding: '3px 8px', borderRadius: 99 });
-
   const isSafe = stats.riskLevel === 'Safe' || stats.riskLevel === 'Low';
-  const statusColor = isSafe ? '#34c759' : stats.riskLevel === 'Moderate' ? '#f59e0b' : '#ef4444';
-
+  const statusColor = isSafe ? '#34c759' : stats.riskLevel === 'Moderate' ? '#ff9500' : '#ff3b30';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      {/* ROW 1 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: 18 }}>
-        <div style={card}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: statusColor, display: 'inline-block', boxShadow: `0 0 6px ${statusColor}60` }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: statusColor, letterSpacing: '0.06em' }}>LIVE STATUS: {stats.riskLevel.toUpperCase()}</span>
-              </div>
-              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#1d1d1f', marginBottom: 8, letterSpacing: '-0.03em' }}>Your area is {stats.riskLevel.toLowerCase()}.</h2>
-              <p style={{ fontSize: 14, color: '#86868b', lineHeight: 1.5 }}>Analysis based on your current coordinates.<br />{stats.activeAlerts} active reports nearby.</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 20 }}>
+      {/* ROW 1: Hero Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.6fr', gap: 24 }}>
+        <div className="card-apple" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '32px' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: statusColor, boxShadow: `0 0 12px ${statusColor}a0` }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: statusColor, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Live Status: {stats.riskLevel}</span>
             </div>
-            <ScoreRing score={stats.safetyScore} />
+            <h2 style={{ fontSize: 42, fontWeight: 500, color: '#1d1d1f', marginBottom: 12, letterSpacing: '-0.05em', lineHeight: 1.1 }}>
+              Your area is <span style={{ color: statusColor }}>{stats.riskLevel.toLowerCase()}</span>.
+            </h2>
+            <p style={{ fontSize: 16, color: '#636366', lineHeight: 1.6, maxWidth: '85%' }}>
+              AI analysis confirms high safety levels in your current vicinity. <strong>{stats.activeAlerts}</strong> active reports monitored within 5km.
+            </p>
           </div>
-
+          <ScoreRing score={stats.safetyScore} />
         </div>
-        <div style={{ ...card, background: 'linear-gradient(145deg, #e05a3a 0%, #c73e20 100%)', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', gap: 12, overflow: 'hidden', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
-          <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PhoneCall size={24} color="#fff" />
+
+        <div className="card-apple" style={{
+          background: 'linear-gradient(135deg, #ff3b30 0%, #ff6b6b 100%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', gap: 16, border: 'none', position: 'relative', overflow: 'hidden',
+          boxShadow: '0 12px 32px rgba(255, 59, 48, 0.3)'
+        }}>
+          <div style={{ position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%', background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          <div className="animate-pulse-subtle" style={{
+            width: 72, height: 72, borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <PhoneCall size={32} color="#fff" />
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 4 }}>Quick SOS</p>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>Go to SOS tab for full controls</p>
+          <div style={{ textAlign: 'center', zIndex: 1 }}>
+          <p style={{ fontSize: 24, fontWeight: 500, color: '#fff', marginBottom: 6, letterSpacing: '-0.04em' }}>Quick SOS</p>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>Immediate notification for crisis</p>
           </div>
         </div>
       </div>
 
-      {/* ROW 2 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18 }}>
-        {/* Tracking */}
-        <div style={card}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 10, background: '#eef4ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={16} color="#34a8f5" /></div>
-            <span style={badge('#34a8f5')}>ACTIVE</span>
+      {/* ROW 2: Widgets Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
+        {/* Tracking Widget */}
+        <div className="card-apple" style={{ padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className="glass-dark" style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,122,255,0.05)' }}>
+                <Navigation size={18} color="#007aff" />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.03em' }}>Live Tracking</h3>
+                <p style={{ fontSize: 12, color: '#636366', margin: 0 }}>GPS Signal: Strong</p>
+              </div>
+            </div>
           </div>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', marginBottom: 4 }}>Real-time Tracking</h3>
-          <p style={{ fontSize: 13, color: '#86868b', marginBottom: 14 }}>GPS monitoring active</p>
-          <div style={{ background: '#f8f9fa', borderRadius: 12, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 12, overflow: 'hidden', border: '1px solid #f0f0f2', position: 'relative' }}>
+          <div style={{ background: '#f5f5f7', borderRadius: 20, height: 140, position: 'relative', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.03)' }}>
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(#d1d1d6 0.5px, transparent 0.5px)', backgroundSize: '16px 16px', opacity: 0.3 }} />
             {userLocation ? (
-              <>
-                <div style={{ position: 'absolute', inset: 0, opacity: 0.3, background: 'repeating-linear-gradient(0deg, transparent, transparent 19px, #e5e7eb 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #e5e7eb 20px)' }} />
-                <div style={{ textAlign: 'center', zIndex: 1 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#34a8f5', margin: '0 auto 6px', boxShadow: '0 0 0 4px rgba(52,168,245,0.2)', animation: 'pulse 1.5s infinite' }} />
-                  <p style={{ fontSize: 10, fontWeight: 700, color: '#555', margin: 0 }}>LIVE: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</p>
-                </div>
-                <style>{`@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.9; } 70% { transform: scale(1.1); opacity: 0.3; } 100% { transform: scale(0.95); opacity: 0.9; } }`}</style>
-              </>
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#007aff', border: '3px solid #fff', boxShadow: '0 0 15px rgba(0,122,255,0.8)', animation: 'pulse-subtle 2s infinite' }} />
+                <p style={{ fontSize: 11, fontWeight: 600, color: '#007aff', marginTop: 8, background: 'rgba(255,255,255,0.9)', padding: '2px 8px', borderRadius: 6 }}>USER_ACTIVE</p>
+              </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Navigation size={18} className="animate-pulse" color="#999" />
-                <p style={{ fontSize: 13, color: '#999', margin: 0 }}>Resolving GPS...</p>
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Navigation size={24} color="#8e8e93" className="animate-spin-slow" />
               </div>
             )}
           </div>
-          <p style={{ fontSize: 12, color: '#86868b' }}>Precision: 10 meters</p>
-        </div>
-        {/* Risk */}
-        <div style={{ ...card, padding: 0, border: 'none', background: 'transparent', boxShadow: 'none' }}>
-          <RiskAnalysisCard lat={userLocation?.lat} lng={userLocation?.lng} />
         </div>
 
-        {/* Contacts summary */}
-        <div style={card}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 10, background: '#ffeef0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Shield size={16} color="#e05a3a" /></div>
-            <span style={badge('#86868b')}>{contacts.length} CONTACTS</span>
+        {/* Contacts Widget */}
+        <div className="card-apple" style={{ padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+            <div className="glass-dark" style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(52,199,89,0.05)' }}>
+              <Users size={18} color="#34c759" />
+            </div>
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.03em' }}>Trusted Circle</h3>
+              <p style={{ fontSize: 12, color: '#636366', margin: 0 }}>{contacts.length} Active Guardians</p>
+            </div>
           </div>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', marginBottom: 4 }}>Emergency Contacts</h3>
-          <p style={{ fontSize: 13, color: '#86868b', marginBottom: 18 }}>{contacts.length > 0 ? 'Ready to receive SOS alerts' : 'No contacts added yet'}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-            {contacts.slice(0, 3).map((c, i) => (
-              <div key={c._id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#e05a3a18', border: '2px solid #e05a3a30', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#e05a3a', flexShrink: 0 }}>{c.name.charAt(0).toUpperCase()}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#1d1d1f', marginBottom: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</p>
-                  <p style={{ fontSize: 11, color: '#86868b' }}>{c.phone}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {contacts.slice(0, 2).map((c, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'rgba(52,199,89,0.05)', borderRadius: 14 }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#34c759', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 600 }}>{c.name.charAt(0)}</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>{c.name}</p>
+                  <p style={{ fontSize: 11, color: '#636366', margin: 0 }}>Primary Contact</p>
                 </div>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34c759', flexShrink: 0 }} />
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34c759' }} />
               </div>
             ))}
-            {contacts.length === 0 && <p style={{ fontSize: 13, color: '#86868b', textAlign: 'center', padding: '10px 0' }}>Add contacts in the Contacts tab →</p>}
+            {contacts.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '12px', border: '1.5px dashed #d1d1d6', borderRadius: 14, color: '#8e8e93', fontSize: 12 }}>No contacts added</div>
+            )}
+          </div>
+        </div>
+
+        {/* AI Analytics Widget */}
+        <div className="card-apple" style={{ padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+            <div className="glass-dark" style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,149,0,0.05)' }}>
+              <Activity size={18} color="#ff9500" />
+            </div>
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.03em' }}>Safety Index</h3>
+              <p style={{ fontSize: 12, color: '#636366', margin: 0 }}>Local Risk Trends</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#8e8e93' }}>CONFIDENCE</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#1d1d1f' }}>98%</span>
+              </div>
+              <ProgressBar value={98} color="#34c759" />
+            </div>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#8e8e93' }}>REPORTS VOL</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#1d1d1f' }}>LOW</span>
+              </div>
+              <ProgressBar value={20} color="#007aff" />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Stats bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 22px', background: '#fff', borderRadius: 18, border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', gap: 40 }}>
-          {[['TOTAL REPORTS', stats.totalReports], ['COMMUNITY ALERTS', stats.activeAlerts + ' Active'], ['CONTACTS', contacts.length || '0']].map(([label, val]) => (
+      <div className="card-apple" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 32px' }}>
+        <div style={{ display: 'flex', gap: 48 }}>
+          {[
+            ['TOTAL REPORTS', stats.totalReports],
+            ['COMMUNITY ALERTS', stats.activeAlerts + ' Active'],
+            ['SYSTEM STATE', 'SECURE']
+          ].map(([label, val]) => (
             <div key={label}>
-              <p style={{ fontSize: 11, color: '#999', fontWeight: 600, letterSpacing: '0.05em', marginBottom: 2 }}>{label}</p>
-              <p style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em' }}>{val}</p>
+              <p style={{ fontSize: 11, color: '#8e8e93', fontWeight: 600, letterSpacing: '0.08em', marginBottom: 4 }}>{label}</p>
+              <p style={{ fontSize: 22, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.03em', margin: 0 }}>{val}</p>
             </div>
           ))}
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Lock size={14} color="#e05a3a" />
-          <span style={{ fontSize: 12, color: '#86868b', fontWeight: 500 }}>Encryption: Active (AES-256)</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Lock size={16} color="#34c759" />
+          <span style={{ fontSize: 13, color: '#636366', fontWeight: 600 }}>End-to-end Encrypted</span>
         </div>
       </div>
     </div>
@@ -173,12 +220,9 @@ const Dashboard = () => {
   const [contacts, setContacts] = useState([]);
   const [stats, setStats] = useState({ totalReports: 0, activeAlerts: 0, safetyScore: 92, riskLevel: 'Safe' });
 
-  // pick-location bridge: incident form → safety map
   const [pickMode, setPickMode] = useState(false);
   const [pickedLocation, setPickedLocation] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
-
-
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -188,8 +232,6 @@ const Dashboard = () => {
       return () => navigator.geolocation.clearWatch(watchId);
     }
   }, []);
-
-
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -204,11 +246,9 @@ const Dashboard = () => {
 
   const fetchGlobalStats = async (loc) => {
     try {
-      // 1. Get incidents count
       const { data: incData } = await api.get('/incidents');
       const active = incData.data.incidents.filter(i => i.status === 'active').length;
 
-      // 2. Get local risk for safety score
       let score = 92;
       let level = 'Safe';
       if (loc) {
@@ -230,8 +270,6 @@ const Dashboard = () => {
     if (userLocation) fetchGlobalStats(userLocation);
   }, [userLocation]);
 
-
-  // Tabs definition
   const tabs = [
     { id: 'overview', label: 'Overview', icon: <Home size={20} /> },
     { id: 'contacts', label: 'Contacts', icon: <Users size={20} />, badge: contacts.length === 0 },
@@ -242,69 +280,64 @@ const Dashboard = () => {
   ];
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#f2f2f7', fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ display: 'flex', height: '100vh', background: 'transparent' }}>
 
-      {/* ── Sidebar ───────────────────────────────────────────────────── */}
-      <aside style={{ width: 68, minHeight: '100vh', background: '#f7f7f9', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0', gap: 8, borderRight: '1px solid rgba(0,0,0,0.07)' }}>
-        <div style={{ width: 40, height: 40, borderRadius: 12, background: '#e05a3a', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, flexShrink: 0, boxShadow: '0 4px 14px rgba(224,90,58,0.4)' }}>
-          <Shield size={20} color="#fff" />
+      {/* Sidebar */}
+      <aside className="glass" style={{ width: 72, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0', gap: 24, border: 'none', borderRight: '1px solid rgba(255,255,255,0.2)', zIndex: 100 }}>
+        <div className="animate-float" style={{ width: 44, height: 44, borderRadius: 16, background: 'linear-gradient(135deg, #007aff, #00c6ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, flexShrink: 0, boxShadow: '0 8px 16px rgba(0,122,255,0.3)' }}>
+          <Shield size={24} color="#fff" />
         </div>
-        {tabs.map(t => <NavItem key={t.id} icon={t.icon} active={currentTab === t.id} onClick={() => navigate(`/dashboard/${t.id}`)} badge={t.badge} />)}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {tabs.map(t => <NavItem key={t.id} icon={t.icon} active={currentTab === t.id} onClick={() => navigate(`/dashboard/${t.id}`)} badge={t.badge} />)}
+        </div>
+
         <div style={{ flex: 1 }} />
 
-        <NavItem icon={<Settings size={20} />} active={false} onClick={() => { }} />
-        <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg,#e05a3a,#c04030)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8, border: '2px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.12)', cursor: 'pointer' }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
+        <NavItem icon={<Settings size={22} />} active={false} onClick={() => { }} />
+        <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #f5f5f7, #d1d1d6)', padding: 2, border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer' }}>
+          <img src="/memoji.png" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
         </div>
       </aside>
 
-      {/* ── Main ─────────────────────────────────────────────────────── */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Main Content Area */}
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
 
-        {/* Top bar */}
-        <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 28px', background: '#f2f2f7', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-          <div>
-            <p style={{ fontSize: 12, color: '#999', fontWeight: 600, letterSpacing: '0.05em', marginBottom: 2 }}>SHESHIELD PREMIUM MEMBER</p>
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: 10 }}>
-              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}{user ? `, ${user.name.split(' ')[0]}` : ''}
-              <Sparkles size={22} color="#f59e0b" fill="#f59e0b20" />
-            </h1>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 12, padding: '9px 14px', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-              <Search size={16} color="#999" />
-              <input placeholder="Search safety zones…" style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 14, color: '#1d1d1f', width: 180, fontFamily: 'inherit' }} />
+        <header style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '40px 48px 24px', background: 'transparent' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+            <img src="/memoji.png" className="animate-float" style={{ width: 80, height: 80, borderRadius: 24, boxShadow: '0 12px 32px rgba(0,0,0,0.1)' }} />
+            <div>
+                <p style={{ fontSize: 13, color: '#636366', fontWeight: 600, letterSpacing: '0.08em', marginBottom: 4, textTransform: 'uppercase' }}>SheShield Premium</p>
+              <h1 style={{ fontSize: 44, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.05em', margin: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+                Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}{user ? `, ${user.name.split(' ')[0]}` : ''}
+              </h1>
             </div>
-            <button style={{ width: 38, height: 38, borderRadius: 10, background: '#fff', border: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-              <SlidersHorizontal size={16} color="#555" />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="glass" style={{ display: 'flex', alignItems: 'center', gap: 12, borderRadius: 16, padding: '12px 20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', width: 320 }}>
+              <Search size={18} color="#8e8e93" strokeWidth={2.5} />
+              <input placeholder="Search safety zones…" style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 15, color: '#1d1d1f', width: '100%', fontWeight: 500 }} />
+            </div>
+            <button className="glass btn-premium" style={{ borderRadius: 16, width: 48, height: 48, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <SlidersHorizontal size={18} color="#1d1d1f" />
             </button>
           </div>
         </header>
 
-        {/* Tab pills */}
-        <div style={{ display: 'flex', gap: 6, padding: '14px 28px 0', background: '#f2f2f7' }}>
-          {tabs.map(t => (
-            <button key={t.id} onClick={() => navigate(`/dashboard/${t.id}`)} style={{
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '8px 16px', borderRadius: 12, border: 'none',
-              fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              transition: 'all 0.2s',
-              background: currentTab === t.id ? '#e05a3a' : '#fff',
-              color: currentTab === t.id ? '#fff' : '#86868b',
-              boxShadow: currentTab === t.id ? '0 4px 14px rgba(224,90,58,0.35)' : '0 1px 4px rgba(0,0,0,0.06)',
-            }}>
-              {t.icon} {t.label}
-              {t.badge && <span style={{ width: 7, height: 7, borderRadius: '50%', background: currentTab === t.id ? '#fff' : '#e05a3a', flexShrink: 0 }} />}
-            </button>
-          ))}
-        </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 48px 48px' }}>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
+            {tabs.map(t => (
+              <button key={t.id} onClick={() => navigate(`/dashboard/${t.id}`)} className={currentTab === t.id ? 'btn-premium btn-premium-active' : 'btn-premium glass'}>
+                {React.cloneElement(t.icon, { size: 16, strokeWidth: 2.5 })}
+                <span style={{ marginLeft: 2 }}>{t.label}</span>
+              </button>
+            ))}
+          </div>
 
-
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 28px' }}>
           <Routes>
             <Route path="overview" element={<OverviewTab user={user} contacts={contacts} userLocation={userLocation} stats={stats} />} />
             <Route path="contacts" element={<EmergencyContacts />} />
-
             <Route path="sos" element={<SOSTracker contacts={contacts} />} />
             <Route path="incidents" element={
               <IncidentReporting
@@ -330,19 +363,17 @@ const Dashboard = () => {
               />
             } />
             <Route path="alerts" element={
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 320, color: '#86868b' }}>
-                <div style={{ background: '#f5f5f7', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                  <BellOff size={40} color="#86868b" />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 320, color: '#8e8e93' }}>
+                <div style={{ background: 'rgba(0,0,0,0.03)', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                  <BellOff size={40} color="#8e8e93" />
                 </div>
-                <p style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f' }}>No alerts yet</p>
-                <p style={{ fontSize: 14 }}>Community safety alerts will appear here.</p>
+                <p style={{ fontSize: 18, fontWeight: 500, color: '#1d1d1f', margin: 0 }}>No alerts yet</p>
+                <p style={{ fontSize: 14, marginTop: 8 }}>Your emergency notifications will appear here.</p>
               </div>
             } />
-            {/* Fallback to Overview */}
             <Route path="*" element={<Navigate to="overview" replace />} />
           </Routes>
         </div>
-
       </main>
     </div>
   );

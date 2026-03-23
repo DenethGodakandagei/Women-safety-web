@@ -82,9 +82,9 @@ const RiskAnalysisCard = ({ lat, lng }) => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <Sparkles size={18} color={riskColor} fill={riskColor + '20'} />
-            <span style={{ fontSize: 12, fontWeight: 800, color: riskColor, letterSpacing: '0.08em', textTransform: 'uppercase' }}>AI Safety Insights</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: riskColor, letterSpacing: '0.08em', textTransform: 'uppercase' }}>AI Safety Insights</span>
           </div>
-          <h3 style={{ fontSize: 28, fontWeight: 800, color: '#1d1d1f', margin: 0, letterSpacing: '-0.04em' }}>{analysis.riskLevel} Risk</h3>
+          <h3 style={{ fontSize: 28, fontWeight: 500, color: '#1d1d1f', margin: 0, letterSpacing: '-0.04em' }}>{analysis.riskLevel} Risk</h3>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: 32, fontWeight: 900, color: riskColor, lineHeight: 1, letterSpacing: '-0.04em' }}>{analysis.riskScore}%</div>
@@ -100,16 +100,16 @@ const RiskAnalysisCard = ({ lat, lng }) => {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div style={{ padding: '14px', background: 'rgba(255,255,255,0.3)', borderRadius: 18, border: '1px solid rgba(255,255,255,0.4)' }}>
-          <p style={{ fontSize: 10, fontWeight: 800, color: '#8e8e93', margin: '0 0 8px', letterSpacing: '0.05em' }}>CONFIDENCE</p>
+          <p style={{ fontSize: 10, fontWeight: 500, color: '#8e8e93', margin: '0 0 8px', letterSpacing: '0.05em' }}>CONFIDENCE</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ flex: 1, height: 6, background: 'rgba(0,0,0,0.05)', borderRadius: 99 }}>
               <div style={{ width: `${analysis.confidenceRate || analysis.confidence || 0}%`, height: '100%', background: '#34c759', borderRadius: 99 }} />
             </div>
-            <span style={{ fontSize: 13, fontWeight: 800, color: '#1d1d1f' }}>{analysis.confidenceRate || analysis.confidence || 0}%</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: '#1d1d1f' }}>{analysis.confidenceRate || analysis.confidence || 0}%</span>
           </div>
         </div>
         <div style={{ padding: '14px', background: 'rgba(255,255,255,0.3)', borderRadius: 18, border: '1px solid rgba(255,255,255,0.4)' }}>
-           <p style={{ fontSize: 10, fontWeight: 800, color: '#8e8e93', margin: '0 0 8px', letterSpacing: '0.05em' }}>PEAK RISK</p>
+           <p style={{ fontSize: 10, fontWeight: 500, color: '#8e8e93', margin: '0 0 8px', letterSpacing: '0.05em' }}>PEAK RISK</p>
            <span style={{ fontSize: 14, fontWeight: 700, color: '#1d1d1f' }}>{analysis.temporalAnalysis || 'Unchanging'}</span>
         </div>
       </div>
@@ -117,7 +117,7 @@ const RiskAnalysisCard = ({ lat, lng }) => {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
           <ShieldCheck size={18} color="#34c759" />
-          <h4 style={{ fontSize: 13, fontWeight: 800, color: '#1d1d1f', margin: 0, letterSpacing: '0.03em' }}>SAFETY RECOMMENDATIONS</h4>
+          <h4 style={{ fontSize: 13, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '0.03em' }}>SAFETY RECOMMENDATIONS</h4>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {analysis.safetySuggestions?.map((tip, i) => (

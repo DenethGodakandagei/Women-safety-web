@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Map as MapIcon, MapPin, AlertTriangle, Siren, RefreshCcw, 
   Flag, Navigation, Info, ChevronLeft, ChevronRight, Target,
-  MessageSquareAlert, Banknote, Eye, Moon, UserSearch, CheckCircle
+  Banknote, Eye, Moon, CheckCircle, XCircle, Square, Play, Search as SearchIcon
 } from 'lucide-react';
 import api from '../utils/api';
 import RouteAnalyzer from './RouteAnalyzer';
@@ -12,13 +12,13 @@ const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 // ─── Incident config ──────────────────────────────────────────────────────────
 const INCIDENT_TYPES = [
-  { value: 'harassment',          label: 'Harassment',           icon: <MessageSquareAlert size={14}/>, markerText: 'H', color: '#f97316' },
+  { value: 'harassment',          label: 'Harassment',           icon: <AlertTriangle size={14}/>, markerText: 'H', color: '#f97316' },
   { value: 'assault',             label: 'Assault',              icon: <Siren size={14}/>,              markerText: 'A', color: '#ef4444' },
   { value: 'theft',               label: 'Theft',                icon: <Banknote size={14}/>,           markerText: 'T', color: '#eab308' },
   { value: 'stalking',            label: 'Stalking',             icon: <Eye size={14}/>,                markerText: 'S', color: '#8b5cf6' },
   { value: 'unsafe_area',         label: 'Unsafe Area',          icon: <AlertTriangle size={14}/>,      markerText: '!', color: '#f43f5e' },
   { value: 'poor_lighting',       label: 'Poor Lighting',        icon: <Moon size={14}/>,               markerText: 'L', color: '#64748b' },
-  { value: 'suspicious_activity', label: 'Suspicious Activity',  icon: <UserSearch size={14}/>,         markerText: '?', color: '#0ea5e9' },
+  { value: 'suspicious_activity', label: 'Suspicious Activity',  icon: <SearchIcon size={14}/>,         markerText: '?', color: '#0ea5e9' },
   { value: 'other',               label: 'Other',                icon: <MapPin size={14}/>,             markerText: 'O', color: '#6b7280' },
 ];
 
@@ -98,35 +98,66 @@ const buildInfoWindowContent = (incident) => {
         <span>By <strong>${incident.reportedBy?.name || 'Anonymous'}</strong></span>
         <span>${time} · 👍 ${incident.upvotes || 0}</span>
       </div>
-      ${incident.status === 'resolved' ? '<div style="margin-top:6px;font-size:11px;color:#22c55e;font-weight:700;display:flex;align-items:center;gap:4px">Check Resolved</div>' : ''}
+      ${incident.status === 'resolved' ? '<div style="margin-top:6px;font-size:11px;color:#22c55e;font-weight:600;display:flex;align-items:center;gap:4px">Check Resolved</div>' : ''}
     </div>
   `;
 };
 
 // ─── Legend ───────────────────────────────────────────────────────────────────
 const MapLegend = ({ filter, onFilter }) => (
-  <div style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(10px)', borderRadius: 16, padding: '14px 16px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', minWidth: 180 }}>
-    <p style={{ fontSize: 11, fontWeight: 800, color: '#555', letterSpacing: '0.05em', margin: '0 0 10px' }}>FILTER BY TYPE</p>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-      <button onClick={() => onFilter('')} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', borderRadius: 8, border: 'none', background: !filter ? '#e05a3a18' : 'transparent', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
-        <MapPin size={14} color={!filter ? '#e05a3a' : '#555'} />
-        <span style={{ fontSize: 12, fontWeight: filter ? 500 : 700, color: !filter ? '#e05a3a' : '#555' }}>All Incidents</span>
-      </button>
-      {INCIDENT_TYPES.map(t => (
-        <button key={t.value} onClick={() => onFilter(t.value === filter ? '' : t.value)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', borderRadius: 8, border: 'none', background: filter === t.value ? t.color + '18' : 'transparent', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
-          <span style={{ color: filter === t.value ? t.color : '#555' }}>{t.icon}</span>
-          <span style={{ fontSize: 12, fontWeight: filter === t.value ? 700 : 500, color: filter === t.value ? t.color : '#555' }}>{t.label}</span>
+  <div className="card-apple" style={{ 
+    background: 'rgba(255,255,255,0.85)', 
+    backdropFilter: 'blur(20px)', 
+    borderRadius: 24, 
+    padding: '24px', 
+    width: 260,
+    border: '1px solid rgba(255,255,255,0.5)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16
+  }}>
+    <div>
+      <p style={{ fontSize: 10, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', margin: '0 0 12px', textTransform: 'uppercase' }}>Safety Layers</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <button 
+          onClick={() => onFilter('')} 
+          className={!filter ? 'btn-premium btn-premium-active' : 'btn-premium'}
+          style={{ width: '100%', justifyContent: 'flex-start', padding: '10px 14px', background: !filter ? '#007aff' : 'rgba(0,0,0,0.03)', color: !filter ? '#fff' : '#1d1d1f' }}
+        >
+          <MapPin size={16} /> <span style={{ fontSize: 13, fontWeight: 600 }}>Show All Reports</span>
         </button>
-      ))}
+        {INCIDENT_TYPES.slice(0, 6).map(t => (
+          <button 
+            key={t.value} 
+            onClick={() => onFilter(t.value === filter ? '' : t.value)} 
+            className={filter === t.value ? 'btn-premium btn-premium-active' : 'btn-premium'}
+            style={{ 
+              width: '100%', 
+              justifyContent: 'flex-start', 
+              padding: '8px 14px', 
+              background: filter === t.value ? t.color : 'rgba(0,0,0,0.03)',
+              color: filter === t.value ? '#fff' : '#1d1d1f'
+            }}
+          >
+            <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {React.cloneElement(t.icon, { size: 16 })}
+              <span style={{ fontSize: 13, fontWeight: 600 }}>{t.label}</span>
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
-    <div style={{ marginTop: 12, borderTop: '1px solid #f0f0f0', paddingTop: 10 }}>
-      <p style={{ fontSize: 11, fontWeight: 800, color: '#555', letterSpacing: '0.05em', margin: '0 0 8px' }}>SEVERITY</p>
-      {Object.entries(SEVERITY_CONFIG).map(([sev, cfg]) => (
-        <div key={sev} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-          <div style={{ width: cfg.size, height: cfg.size, borderRadius: '50%', background: cfg.color, border: '2px solid white', boxShadow: `0 0 0 2px ${cfg.ring}` }}/>
-          <span style={{ fontSize: 11, color: '#555', textTransform: 'capitalize' }}>{sev}</span>
-        </div>
-      ))}
+    
+    <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 16 }}>
+      <p style={{ fontSize: 10, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', margin: '0 0 12px', textTransform: 'uppercase' }}>Risk Indicators</p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+        {Object.entries(SEVERITY_CONFIG).map(([sev, cfg]) => (
+          <div key={sev} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: cfg.color, boxShadow: `0 0 0 3px ${cfg.ring}` }}/>
+            <span style={{ fontSize: 11, color: '#1d1d1f', fontWeight: 600, textTransform: 'capitalize' }}>{sev}</span>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 );
@@ -338,50 +369,53 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 14, background: '#eef4ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <MapIcon size={24} color="#3b82f6" />
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div className="glass-dark" style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(0,122,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <MapIcon size={32} color="#007aff" />
           </div>
           <div>
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Interactive Safety Map</h2>
-            <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Live danger zones from community reports. Click a marker for details.</p>
+            <h2 style={{ fontSize: 32, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: '0' }}>Safety Map</h2>
+            <p style={{ fontSize: 16, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Live community-driven intelligence for safer navigation.</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={() => setShowRouteSearch(!showRouteSearch)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 12, background: showRouteSearch ? '#e05a3a' : '#fff', border: '1.5px solid #e5e5e7', color: showRouteSearch ? '#fff' : '#555', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <Flag size={16} /> Plan Safe Route
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button onClick={() => setShowRouteSearch(!showRouteSearch)} className={showRouteSearch ? 'btn-premium btn-premium-active' : 'btn-premium'} style={{ padding: '12px 24px', fontSize: 14 }}>
+            <Navigation size={18} /> Plan Safe Route
           </button>
-          <button onClick={fetchIncidents} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 12, background: '#fff', border: '1.5px solid #e5e5e7', color: '#555', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <RefreshCcw size={16}/> Refresh
+          <button onClick={fetchIncidents} className="btn-premium" style={{ padding: '12px 24px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f' }}>
+            <RefreshCcw size={18}/>
           </button>
         </div>
       </div>
 
       {showRouteSearch && (
-        <div style={{ padding: 24, background: '#fff', borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.08)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 15, alignItems: 'flex-end', marginBottom: 20 }}>
+        <div className="card-apple" style={{ padding: '32px', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)', border: 'none' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 20, alignItems: 'flex-end', marginBottom: 24 }}>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 800, color: '#999', display: 'block', marginBottom: 8 }}>STARTING POINT</label>
-              <input disabled value="Current Location" style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: '1.5px solid #f0f0f2', background: '#f8f9fa', fontSize: 14, color: '#555' }} />
+              <label style={{ fontSize: 11, fontWeight: 600, color: '#8e8e93', display: 'block', marginBottom: 10, letterSpacing: '0.05em' }}>START POINT</label>
+              <div className="glass-dark" style={{ background: 'rgba(0,0,0,0.03)', padding: '14px 18px', borderRadius: 14, fontSize: 15, color: '#8e8e93', fontWeight: 600 }}>
+                My Current Location
+              </div>
             </div>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 800, color: '#999', display: 'block', marginBottom: 8 }}>WHERE ARE YOU GOING?</label>
+              <label style={{ fontSize: 11, fontWeight: 600, color: '#8e8e93', display: 'block', marginBottom: 10, letterSpacing: '0.05em' }}>DESTINATION</label>
               <input 
-                placeholder="Enter destination (e.g., Galle, Matara)" 
+                placeholder="Where are you heading?" 
                 value={routeInput}
                 onChange={(e) => setRouteInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && setDestination(routeInput)}
-                style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: '1.5px solid #e05a3a40', fontSize: 14, color: '#1d1d1f', outline: 'none' }} 
+                className="glass-dark"
+                style={{ width: '100%', padding: '14px 18px', borderRadius: 14, border: 'none', background: 'rgba(0,0,0,0.03)', fontSize: 15, color: '#1d1d1f', outline: 'none', fontWeight: 600 }} 
               />
             </div>
             <button 
               onClick={() => setDestination(routeInput)}
-              style={{ padding: '12px 24px', borderRadius: 12, background: '#e05a3a', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+              className="btn-premium btn-premium-active"
+              style={{ padding: '14px 32px', height: 52 }}
             >
-              <Navigation size={18}/> Analyze Route
+              Analyze Security
             </button>
-
           </div>
           <RouteAnalyzer origin={userLocation} destination={destination} />
         </div>
@@ -389,17 +423,19 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
 
 
       {/* Stats bar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
         {[
-          { label: 'Total Reports',   value: stats.total,    icon: <MapPin size={22}/>,      color: '#3b82f6', bg: '#eff6ff' },
-          { label: 'Active Incidents', value: stats.active,   icon: <Siren size={22}/>,       color: '#ef4444', bg: '#fef2f2' },
-          { label: 'Critical Zones',  value: stats.critical, icon: <AlertTriangle size={22}/>, color: '#f97316', bg: '#fff7ed' },
+          { label: 'Intelligence Base', value: stats.total,    icon: <MapPin size={24}/>,      color: '#007aff', bg: 'rgba(0, 122, 255, 0.05)' },
+          { label: 'Active Reports',    value: stats.active,   icon: <Siren size={24}/>,       color: '#ff3b30', bg: 'rgba(255, 59, 48, 0.05)' },
+          { label: 'High Alert Zones',  value: stats.critical, icon: <AlertTriangle size={24}/>, color: '#ff9500', bg: 'rgba(255, 149, 0, 0.05)' },
         ].map(s => (
-          <div key={s.label} style={{ background: s.bg, borderRadius: 16, padding: '14px 18px', border: `1px solid ${s.color}25`, display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ color: s.color }}>{s.icon}</div>
+          <div key={s.label} className="card-apple" style={{ background: s.bg, padding: '20px 24px', border: 'none', display: 'flex', alignItems: 'center', gap: 18 }}>
+            <div className="glass-dark" style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)', color: s.color }}>
+              {s.icon}
+            </div>
             <div>
-              <p style={{ fontSize: 22, fontWeight: 800, color: s.color, margin: 0, lineHeight: 1 }}>{s.value}</p>
-              <p style={{ fontSize: 11, color: '#86868b', margin: '3px 0 0', fontWeight: 600, letterSpacing: '0.03em' }}>{s.label.toUpperCase()}</p>
+              <p style={{ fontSize: 26, fontWeight: 500, color: '#1d1d1f', margin: 0, lineHeight: 1, letterSpacing: '-0.02em' }}>{s.value}</p>
+              <p style={{ fontSize: 12, color: '#8e8e93', margin: '4px 0 0', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{s.label}</p>
             </div>
           </div>
         ))}
@@ -413,10 +449,10 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
       )}
 
       {/* Map wrapper */}
-      <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.07)' }}>
-        {/* Legend overlay — hide during pick mode so the legend buttons can't intercept clicks */}
+      <div style={{ position: 'relative', borderRadius: 28, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.5)' }}>
+        {/* Legend overlay */}
         {showLegend && !isPickMode && (
-          <div style={{ position: 'absolute', top: 14, right: 14, zIndex: 10 }}>
+          <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10 }}>
             <MapLegend filter={filterType} onFilter={setFilterType}/>
           </div>
         )}
@@ -424,16 +460,17 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
         {/* Toggle legend button */}
         <button
           onClick={() => setShowLegend(l => !l)}
-          style={{ position: 'absolute', top: 14, left: 14, zIndex: 10, padding: '7px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(0,0,0,0.1)', fontWeight: 700, fontSize: 12, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 6 }}
+          className="btn-premium glass-dark"
+          style={{ position: 'absolute', top: 20, left: 20, zIndex: 10, padding: '10px 18px', background: 'rgba(255,255,255,0.9)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
         >
-          {showLegend ? <><ChevronLeft size={14}/> Hide Legend</> : <><ChevronRight size={14}/> Show Legend</>}
+          {showLegend ? <><ChevronLeft size={16}/> Hide Filters</> : <><ChevronRight size={16}/> Show Filters</>}
         </button>
 
         {/* User location badge */}
         {userLocation && (
-          <div style={{ position: 'absolute', bottom: 14, left: 14, zIndex: 10, display: 'flex', alignItems: 'center', gap: 7, padding: '7px 14px', borderRadius: 99, background: 'rgba(59,130,246,0.9)', color: '#fff', fontSize: 12, fontWeight: 700, boxShadow: '0 2px 12px rgba(59,130,246,0.4)' }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', display: 'inline-block', boxShadow: '0 0 0 3px rgba(255,255,255,0.3)', animation: 'map-blink 1.5s ease infinite' }}/>
-            You are here
+          <div className="animate-float" style={{ position: 'absolute', bottom: 20, left: 20, zIndex: 10, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', borderRadius: 99, background: 'rgba(0, 122, 255, 0.9)', color: '#fff', fontSize: 13, fontWeight: 600, boxShadow: '0 8px 24px rgba(0, 122, 255, 0.3)' }}>
+            <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#fff', display: 'inline-block', boxShadow: '0 0 0 4px rgba(255,255,255,0.2)', animation: 'map-blink 1.5s ease infinite' }}/>
+            LIVE SIGNAL
           </div>
         )}
 
@@ -465,12 +502,12 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
       </div>
 
       {/* Incident type quick filter pills */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button onClick={() => setFilterType('')} style={{ padding: '7px 16px', borderRadius: 99, border: `1.5px solid ${!filterType ? '#e05a3a' : '#e5e5e7'}`, background: !filterType ? '#fef3f0' : '#fff', color: !filterType ? '#e05a3a' : '#86868b', fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <MapIcon size={12}/> All
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <button onClick={() => setFilterType('')} className={!filterType ? 'btn-premium btn-premium-active' : 'btn-premium'} style={{ padding: '10px 20px', fontSize: 13 }}>
+          <MapIcon size={14}/> All Intel
         </button>
         {INCIDENT_TYPES.map(t => (
-          <button key={t.value} onClick={() => setFilterType(filterType === t.value ? '' : t.value)} style={{ padding: '7px 16px', borderRadius: 99, border: `1.5px solid ${filterType === t.value ? t.color : '#e5e5e7'}`, background: filterType === t.value ? t.color + '18' : '#fff', color: filterType === t.value ? t.color : '#86868b', fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button key={t.value} onClick={() => setFilterType(filterType === t.value ? '' : t.value)} className={filterType === t.value ? 'btn-premium btn-premium-active' : 'btn-premium'} style={{ padding: '10px 20px', fontSize: 13, background: filterType === t.value ? t.color : 'rgba(0,0,0,0.03)', color: filterType === t.value ? '#fff' : '#1d1d1f' }}>
             {t.icon} {t.label}
           </button>
         ))}

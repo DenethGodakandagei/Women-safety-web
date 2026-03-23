@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  ShieldAlert, AlertTriangle, MapPin, Siren, Radio, 
-  CheckCircle, XCircle, Square, Play, Map, 
-  Loader2, Info, Clock, Navigation
+import {
+  ShieldAlert, AlertTriangle, MapPin, Siren, Radio,
+  CheckCircle, XCircle, Square, Play, Map as MapIcon,
+  Loader2, Info, Clock, Navigation, Activity, X
 } from 'lucide-react';
 import api from '../utils/api';
 
@@ -64,7 +64,7 @@ const SOSPanel = ({ location, contacts }) => {
       setResult(data.data);
       setState('sent');
     } catch (e) {
-      setResult({ error: e.response?.data?.message || 'SMS delivery failed.' });
+      setResult({ error: e.response?.data?.message || 'Emergency server unreachable.' });
       setState('error');
     }
   };
@@ -74,124 +74,122 @@ const SOSPanel = ({ location, contacts }) => {
   const hasContacts = contacts.length > 0;
   const hasLocation = location.lat !== 0;
 
+  const getBg = () => {
+    if (state === 'counting' || state === 'sending') return 'linear-gradient(135deg, #ff3b30 0%, #ff2d55 100%)';
+    if (state === 'sent') return 'linear-gradient(135deg, #34c759 0%, #30b14b 100%)';
+    if (state === 'error') return 'linear-gradient(135deg, #ff9500 0%, #ffcc00 100%)';
+    return 'rgba(255,255,255,0.85)';
+  };
+
   return (
-    <div style={{
-      background: state === 'counting' || state === 'sending'
-        ? 'linear-gradient(145deg, #ef4444, #dc2626)'
-        : state === 'sent'
-        ? 'linear-gradient(145deg, #22c55e, #16a34a)'
-        : 'linear-gradient(145deg, #e05a3a, #c73e20)',
-      borderRadius: 20,
-      padding: '28px 24px',
-      color: '#fff',
-      boxShadow: state === 'counting' || state === 'sending'
-        ? '0 8px 32px rgba(239,68,68,0.5)'
-        : '0 8px 32px rgba(224,90,58,0.4)',
-      transition: 'all 0.4s ease',
+    <div className="card-apple" style={{
+      background: getBg(),
+      padding: '32px',
+      color: (state === 'idle') ? '#1d1d1f' : '#fff',
+      boxShadow: (state === 'counting' || state === 'sending') ? '0 20px 48px rgba(255, 59, 48, 0.4)' : '0 12px 32px rgba(0,0,0,0.05)',
+      transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
       position: 'relative',
       overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      minHeight: 400,
+      border: 'none',
+      backdropFilter: 'blur(30px)'
     }}>
-      {/* Decorative rings */}
-      <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,0.07)' }}/>
-      <div style={{ position: 'absolute', bottom: -60, left: -30, width: 180, height: 180, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }}/>
+      {/* Dynamic Background Effects */}
+      <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '40%', height: '40%', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', filter: 'blur(40px)' }} />
 
       {/* IDLE state */}
       {state === 'idle' && (
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldAlert size={28} color="#fff" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+            <div className="glass-dark" style={{ width: 56, height: 56, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 59, 48, 0.1)' }}>
+              <ShieldAlert size={32} color="#ff3b30" />
             </div>
             <div>
-              <h3 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>SOS Emergency Alert</h3>
-              <p style={{ fontSize: 13, opacity: 0.8, margin: 0 }}>Sends SMS with live location to all contacts</p>
+              <h3 style={{ fontSize: 24, fontWeight: 500, margin: 0, letterSpacing: '-0.03em' }}>Emergency SOS</h3>
+              <p style={{ fontSize: 14, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Alert all {contacts.length} guardians immediately.</p>
             </div>
           </div>
-          {!hasContacts && (
-            <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 12, padding: '10px 14px', marginBottom: 14, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <AlertTriangle size={16} /> Add emergency contacts first before triggering SOS.
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
+            {!hasContacts && (
+              <div style={{ background: 'rgba(255, 59, 48, 0.08)', borderRadius: 14, padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#ff3b30', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <AlertTriangle size={18} /> Please add emergency contacts first.
+              </div>
+            )}
+            {!hasLocation && (
+              <div style={{ background: 'rgba(0, 122, 255, 0.08)', borderRadius: 14, padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#007aff', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Navigation size={18} className="animate-pulse" /> Acquiring high-precision GPS…
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {contacts.map(c => (
+                <div key={c._id} style={{ padding: '6px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.04)', fontSize: 12, fontWeight: 700, color: '#636366', border: '1px solid rgba(0,0,0,0.03)' }}>
+                  {c.name}
+                </div>
+              ))}
             </div>
-          )}
-          {!hasLocation && (
-            <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 12, padding: '10px 14px', marginBottom: 14, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Navigation size={16} className="animate-pulse" /> Waiting for GPS location…
-            </div>
-          )}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-            {contacts.slice(0, 4).map(c => (
-              <span key={c._id} style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 99, fontSize: 12, fontWeight: 600 }}>
-                {c.name}
-              </span>
-            ))}
-            {contacts.length > 4 && <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 99, fontSize: 12 }}>+{contacts.length - 4} more</span>}
           </div>
+
           <button
             onClick={startSOS}
             disabled={!hasContacts || !hasLocation}
+            className="animate-pulse-subtle"
             style={{
-              width: '100%', padding: '16px', borderRadius: 14, border: '2px solid rgba(255,255,255,0.5)',
-              background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 17, fontWeight: 800,
+              width: '100%', padding: '24px', borderRadius: 20, border: 'none',
+              background: 'linear-gradient(135deg, #ff3b30 0%, #ff2d55 100%)',
+              color: '#fff', fontSize: 20, fontWeight: 600,
               cursor: (!hasContacts || !hasLocation) ? 'not-allowed' : 'pointer',
-              opacity: (!hasContacts || !hasLocation) ? 0.5 : 1,
-              letterSpacing: '0.03em', transition: 'all 0.2s',
-              backdropFilter: 'blur(8px)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
+              opacity: (!hasContacts || !hasLocation) ? 0.3 : 1,
+              letterSpacing: '-0.02em', transition: 'all 0.3s',
+              boxShadow: '0 12px 32px rgba(255, 59, 48, 0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12
             }}
-            onMouseEnter={e => { if (hasContacts && hasLocation) e.currentTarget.style.background = 'rgba(255,255,255,0.25)'; }}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
           >
-            <Siren size={20} className="animate-pulse" /> HOLD TO SEND SOS
+            <Siren size={24} /> SEND EMERGENCY SOS
           </button>
+          <p style={{ fontSize: 12, textAlign: 'center', color: '#8e8e93', marginTop: 16, fontWeight: 600 }}>SMS alerts will be sent with your live coordinates.</p>
         </div>
       )}
 
       {/* COUNTING state */}
       {state === 'counting' && (
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-          <div style={{ fontSize: 72, fontWeight: 900, lineHeight: 1, marginBottom: 8, animation: 'sos-pulse 1s ease infinite' }}>{countdown}</div>
-          <p style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px' }}>Sending SOS in {countdown}s…</p>
-          <p style={{ fontSize: 13, opacity: 0.8, marginBottom: 24 }}>Alert will be sent to {contacts.length} contact{contacts.length !== 1 ? 's' : ''}</p>
-          <button onClick={cancelSOS} style={{
-            background: 'rgba(255,255,255,0.25)', border: '2px solid rgba(255,255,255,0.6)',
-            color: '#fff', borderRadius: 14, padding: '12px 32px', fontWeight: 800, fontSize: 15, cursor: 'pointer'
-          }}>✕ CANCEL</button>
+          <div style={{ fontSize: 100, fontWeight: 500, lineHeight: 1, marginBottom: 8, letterSpacing: '-0.1em' }}>{countdown}</div>
+          <p style={{ fontSize: 24, fontWeight: 500, margin: '0 0 8px' }}>Triggering SOS…</p>
+          <p style={{ fontSize: 15, opacity: 0.9, marginBottom: 40, fontWeight: 500 }}>Sending coordinates to {contacts.length} guardians in {countdown}s</p>
+          <button onClick={cancelSOS} className="btn-premium glass" style={{ padding: '16px 40px', borderRadius: 16, fontSize: 16, border: '2px solid rgba(255,255,255,0.4)', color: '#fff' }}>
+            ✕ STOP ALERT
+          </button>
         </div>
       )}
 
       {/* SENDING state */}
       {state === 'sending' && (
-        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '10px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ background: 'rgba(255,255,255,0.2)', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-            <Radio size={32} color="#fff" className="animate-pulse" />
+        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ background: 'rgba(255,255,255,0.2)', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+            <Radio size={40} color="#fff" className="animate-pulse" />
           </div>
-          <p style={{ fontSize: 18, fontWeight: 800 }}>Sending alerts…</p>
-          <p style={{ fontSize: 13, opacity: 0.8 }}>Contacting {contacts.length} emergency contact{contacts.length !== 1 ? 's' : ''}</p>
+          <p style={{ fontSize: 24, fontWeight: 500 }}>Dispatching Alerts</p>
+          <p style={{ fontSize: 15, opacity: 0.9, fontWeight: 500 }}>Establishing secure connection to emergency gateway…</p>
         </div>
       )}
 
       {/* SENT state */}
       {state === 'sent' && (
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ textAlign: 'center', marginBottom: 20, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ background: 'rgba(255,255,255,0.2)', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-              <CheckCircle size={40} color="#fff" />
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 32 }}>
+            <div style={{ background: 'rgba(255,255,255,0.2)', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+              <CheckCircle size={48} color="#fff" />
             </div>
-            <h3 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>SOS Sent Successfully!</h3>
-            <p style={{ fontSize: 14, opacity: 0.85 }}>{result?.sent} contact{result?.sent !== 1 ? 's' : ''} notified with your live location.</p>
+            <h3 style={{ fontSize: 28, fontWeight: 500, marginBottom: 8 }}>Alerts Sent</h3>
+            <p style={{ fontSize: 16, opacity: 0.9, fontWeight: 500 }}>{result?.sent} contacts have been notified successfully.</p>
           </div>
-          {result?.contactsNotified?.length > 0 && (
-            <div style={{ background: 'rgba(0,0,0,0.15)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
-              {result.contactsNotified.map((c, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', borderBottom: i < result.contactsNotified.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
-                  <span style={{ fontSize: 12 }}>✓</span>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{c.name}</span>
-                  <span style={{ fontSize: 12, opacity: 0.7, marginLeft: 'auto' }}>{c.phone}</span>
-                </div>
-              ))}
-            </div>
-          )}
-          <button onClick={reset} style={{ width: '100%', padding: 14, background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.4)', color: '#fff', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
-            Dismiss
+          <button onClick={reset} className="btn-premium glass" style={{ width: '100%', padding: 16, borderRadius: 16, fontSize: 15, border: '2px solid rgba(255,255,255,0.4)', color: '#fff' }}>
+            Dismiss Status
           </button>
         </div>
       )}
@@ -199,21 +197,17 @@ const SOSPanel = ({ location, contacts }) => {
       {/* ERROR state */}
       {state === 'error' && (
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ background: 'rgba(255,255,255,0.2)', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-            <XCircle size={40} color="#fff" />
+          <div style={{ background: 'rgba(255,255,255,0.2)', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+            <XCircle size={48} color="#fff" />
           </div>
-          <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 6 }}>Failed to send SOS</h3>
-          <p style={{ fontSize: 13, opacity: 0.85, marginBottom: 20 }}>{result?.error}</p>
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-            <button onClick={sendSOS} style={{ padding: '11px 20px', background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', color: '#fff', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>Retry</button>
-            <button onClick={reset} style={{ padding: '11px 20px', background: 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', borderRadius: 12, fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>Cancel</button>
+          <h3 style={{ fontSize: 24, fontWeight: 500, marginBottom: 8 }}>Delivery Failed</h3>
+          <p style={{ fontSize: 15, opacity: 0.9, marginBottom: 32 }}>{result?.error}</p>
+          <div style={{ display: 'flex', gap: 12, width: '100%' }}>
+            <button onClick={sendSOS} className="btn-premium glass" style={{ flex: 1, padding: 16, borderRadius: 16, fontWeight: 600 }}>Retry</button>
+            <button onClick={reset} className="btn-premium" style={{ flex: 1, padding: 16, borderRadius: 16, background: 'rgba(0,0,0,0.1)', border: 'none', color: '#fff' }}>Cancel</button>
           </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes sos-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-      `}</style>
     </div>
   );
 };
@@ -238,26 +232,28 @@ const LiveMap = ({ location, onLocationUpdate }) => {
         disableDefaultUI: true,
         zoomControl: true,
         styles: [
-          { featureType: 'all', elementType: 'geometry', stylers: [{ saturation: -20 }] },
-          { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#f8f8f8' }] },
+          { featureType: 'all', elementType: 'geometry', stylers: [{ saturation: -100 }, { lightness: 10 }] },
+          { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+          { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#e9e9e9' }] },
+          { featureType: 'poi', stylers: [{ visibility: 'off' }] },
         ],
       });
       markerRef.current = new mapsApi.Marker({
         position: center, map: mapObj.current,
-        title: 'Your location',
+        title: 'You',
         icon: {
           path: mapsApi.SymbolPath.CIRCLE,
-          scale: 10, fillColor: '#e05a3a', fillOpacity: 1,
-          strokeColor: '#fff', strokeWeight: 3,
+          scale: 12, fillColor: '#007aff', fillOpacity: 1,
+          strokeColor: '#fff', strokeWeight: 4,
         },
       });
       circleRef.current = new mapsApi.Circle({
-        map: mapObj.current, center, radius: 120,
-        fillColor: '#e05a3a', fillOpacity: 0.1,
-        strokeColor: '#e05a3a', strokeOpacity: 0.3, strokeWeight: 1,
+        map: mapObj.current, center, radius: 100,
+        fillColor: '#007aff', fillOpacity: 0.1,
+        strokeColor: '#007aff', strokeOpacity: 0.2, strokeWeight: 1,
       });
     } catch (err) {
-      setMapError('Failed to load Google Maps.');
+      setMapError('Google Maps failed to initialize.');
     }
   }, []);
 
@@ -274,7 +270,7 @@ const LiveMap = ({ location, onLocationUpdate }) => {
   };
 
   const startTracking = () => {
-    if (!navigator.geolocation) { setMapError('Geolocation not supported.'); return; }
+    if (!navigator.geolocation) { setMapError('GPS not available.'); return; }
     setWatching(true);
     watchIdRef.current = navigator.geolocation.watchPosition(
       ({ coords }) => {
@@ -283,7 +279,7 @@ const LiveMap = ({ location, onLocationUpdate }) => {
         updateMapPosition(latitude, longitude);
         if (!mapObj.current) initMap(latitude, longitude);
       },
-      (err) => { setMapError('Location access denied: ' + err.message); setWatching(false); },
+      (err) => { setMapError('Location denied.'); setWatching(false); },
       { enableHighAccuracy: true, maximumAge: 5000 }
     );
   };
@@ -295,62 +291,49 @@ const LiveMap = ({ location, onLocationUpdate }) => {
 
   useEffect(() => () => stopTracking(), []);
 
-  const s = {
-    card: { background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)' },
-  };
-
   return (
-    <div style={s.card}>
-      {/* Header bar */}
-      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <MapPin size={20} color="#e05a3a" />
+    <div className="card-apple" style={{ overflow: 'hidden', padding: 0 }}>
+      <div style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div className="glass-dark" style={{ width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,122,255,0.05)' }}>
+            <MapPin size={22} color="#007aff" />
           </div>
           <div>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', margin: 0 }}>Live Location Tracking</h3>
-            {location.lat !== 0
-              ? <p style={{ fontSize: 12, color: '#86868b', margin: '3px 0 0' }}>Lat: {location.lat.toFixed(5)} · Lng: {location.lng.toFixed(5)}{location.accuracy ? ` · ±${Math.round(location.accuracy)}m` : ''}</p>
-              : <p style={{ fontSize: 12, color: '#86868b', margin: '3px 0 0' }}>Press "Start Tracking" to enable GPS</p>}
+            <h3 style={{ fontSize: 18, fontWeight: 500, color: '#1d1d1f', margin: 0, letterSpacing: '-0.02em' }}>Live Location Tracking</h3>
+            <p style={{ fontSize: 12, color: '#8e8e93', margin: '2px 0 0', fontWeight: 600 }}>
+              {watching ? 'Broadcasting live coordinates' : 'GPS standby: Ready to track'}
+            </p>
           </div>
         </div>
         <button
           onClick={watching ? stopTracking : startTracking}
-          style={{
-            padding: '8px 16px', borderRadius: 10, border: 'none', fontWeight: 700, fontSize: 13,
-            cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s',
-            background: watching ? '#fef2f2' : '#e05a3a',
-            color: watching ? '#dc2626' : '#fff',
-            display: 'flex', alignItems: 'center', gap: 6
-          }}
+          className={watching ? 'btn-premium glass' : 'btn-premium btn-premium-active'}
+          style={{ padding: '10px 20px', borderRadius: 14, background: watching ? 'rgba(0,0,0,0.03)' : '#007aff', color: watching ? '#1d1d1f' : '#fff' }}
         >
-          {watching ? <><Square size={14} fill="currentColor" /> Stop Tracking</> : <><Play size={14} fill="currentColor" /> Start Tracking</>}
+          {watching ? <><Square size={14} fill="currentColor" /> Stop</> : <><Play size={14} fill="currentColor" /> Start</>}
         </button>
       </div>
 
       {watching && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 20px', background: '#f0fdf4', borderBottom: '1px solid #dcfce7' }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 6px rgba(34,197,94,0.7)', animation: 'sos-pulse 1.5s ease infinite' }}/>
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#15803d', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Activity size={14} /> LIVE TRACKING ACTIVE – Location updates every 5 seconds
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 24px', background: 'rgba(52,199,89,0.08)', borderBottom: '1px solid rgba(52,199,89,0.1)' }}>
+          <div className="animate-pulse" style={{ width: 10, height: 10, borderRadius: '50%', background: '#34c759', boxShadow: '0 0 10px rgba(52,199,89,0.5)' }} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#30b14b', display: 'flex', alignItems: 'center', gap: 6 }}>
+            GPS ACTIVE: ±{location.accuracy ? Math.round(location.accuracy) : '...'}m accuracy
           </span>
         </div>
       )}
 
       {mapError && (
-        <div style={{ padding: '10px 20px', background: '#fff1f0', color: '#dc2626', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <AlertTriangle size={16} /> {mapError}
+        <div style={{ padding: '12px 24px', background: 'rgba(255, 59, 48, 0.08)', color: '#ff3b30', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <AlertTriangle size={18} /> {mapError}
         </div>
       )}
 
-      {/* Map container */}
-      <div ref={mapRef} style={{ width: '100%', height: 320, background: '#f5f5f7' }}>
+      <div ref={mapRef} style={{ width: '100%', height: 350, background: '#f5f5f7', position: 'relative' }}>
         {location.lat === 0 && !watching && (
-          <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: '#86868b' }}>
-            <div style={{ background: '#fff', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-              <Map size={32} color="#86868b" />
-            </div>
-            <p style={{ fontSize: 14, fontWeight: 600 }}>Start tracking to see your live location</p>
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: '#8e8e93' }}>
+            <MapIcon size={48} strokeWidth={1.5} />
+            <p style={{ fontSize: 15, fontWeight: 500 }}>Enable GPS to visualize location</p>
           </div>
         )}
       </div>
@@ -359,25 +342,25 @@ const LiveMap = ({ location, onLocationUpdate }) => {
 };
 
 // ── Main export ───────────────────────────────────────────────────────────────
-const SOSTracker = ({ contacts }) => {
+const SOSTracker = ({ contacts = [] }) => {
   const [location, setLocation] = useState({ lat: 0, lng: 0, accuracy: null });
 
-  // Try to get initial position on mount
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => setLocation({ lat: coords.latitude, lng: coords.longitude, accuracy: coords.accuracy }),
-      () => {}
+      () => { }
     );
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
       <div>
-        <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em' }}>SOS & Live Tracking</h2>
-        <p style={{ fontSize: 13, color: '#86868b', marginTop: 4 }}>One tap sends your location to all emergency contacts via SMS</p>
+        <h2 style={{ fontSize: 32, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: 0 }}>SOS & Tracking</h2>
+        <p style={{ fontSize: 16, color: '#636366', marginTop: 6, fontWeight: 500 }}>Real-time location sharing with emergency response integration.</p>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(400px, 1fr) 1.5fr', gap: 24 }}>
         <SOSPanel location={location} contacts={contacts} />
         <LiveMap location={location} onLocationUpdate={setLocation} />
       </div>

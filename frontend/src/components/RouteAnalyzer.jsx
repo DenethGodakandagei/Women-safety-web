@@ -56,15 +56,15 @@ const RouteAnalyzer = ({ origin, destination }) => {
   return (
     <div style={{ padding: 20, background: '#fff', borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: 16, border: `1px solid ${color}30` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: '#1d1d1f' }}>Route Safety Analysis</h3>
-        <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', background: color, padding: '3px 10px', borderRadius: 99 }}>{analysis.overallSafety?.toUpperCase()}</span>
+        <h3 style={{ fontSize: 18, fontWeight: 500, margin: 0, color: '#1d1d1f' }}>Route Safety Analysis</h3>
+        <span style={{ fontSize: 10, fontWeight: 600, color: '#fff', background: color, padding: '3px 10px', borderRadius: 99 }}>{analysis.overallSafety?.toUpperCase()}</span>
       </div>
 
       <p style={{ fontSize: 14, color: '#444', lineHeight: 1.5, marginBottom: 16 }}>{analysis.verdict}</p>
 
       {analysis.hotspots?.length > 0 && (
         <div style={{ marginBottom: 16 }}>
-          <p style={{ fontSize: 11, fontWeight: 800, color: '#999', margin: '0 0 8px' }}>POTENTIAL HOTSPOTS (APPROACH CAUTIOUSLY)</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: '#999', margin: '0 0 8px' }}>POTENTIAL HOTSPOTS (APPROACH CAUTIOUSLY)</p>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {analysis.hotspots.map((h, i) => (
               <span key={i} style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', background: '#fef2f2', padding: '4px 10px', borderRadius: 8 }}>📍 {h}</span>
