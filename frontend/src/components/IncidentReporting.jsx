@@ -1,16 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { 
+  Plus, Edit2, Trash2, MapPin, Filter, ThumbsUp, CheckCircle, X, 
+  Search, Siren, Banknote, Eye, AlertTriangle, Moon, 
+  UserSearch, Map, Loader2, Save, Frown, MessageSquareAlert,
+  AlertCircle
+} from 'lucide-react';
 import api from '../utils/api';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const INCIDENT_TYPES = [
-  { value: 'harassment',          label: '😤 Harassment',           color: '#f97316' },
-  { value: 'assault',             label: '🚨 Assault',              color: '#ef4444' },
-  { value: 'theft',               label: '💰 Theft',                color: '#eab308' },
-  { value: 'stalking',            label: '👁 Stalking',             color: '#8b5cf6' },
-  { value: 'unsafe_area',         label: '⚠️ Unsafe Area',          color: '#f43f5e' },
-  { value: 'poor_lighting',       label: '🌑 Poor Lighting',        color: '#64748b' },
-  { value: 'suspicious_activity', label: '🕵️ Suspicious Activity',  color: '#0ea5e9' },
-  { value: 'other',               label: '📌 Other',                color: '#6b7280' },
+  { value: 'harassment',          label: 'Harassment',           icon: <MessageSquareAlert size={14}/>, color: '#f97316' },
+  { value: 'assault',             label: 'Assault',              icon: <Siren size={14}/>,              color: '#ef4444' },
+  { value: 'theft',               label: 'Theft',                icon: <Banknote size={14}/>,           color: '#eab308' },
+  { value: 'stalking',            label: 'Stalking',             icon: <Eye size={14}/>,                color: '#8b5cf6' },
+  { value: 'unsafe_area',         label: 'Unsafe Area',          icon: <AlertTriangle size={14}/>,      color: '#f43f5e' },
+  { value: 'poor_lighting',       label: 'Poor Lighting',        icon: <Moon size={14}/>,               color: '#64748b' },
+  { value: 'suspicious_activity', label: 'Suspicious Activity',  icon: <UserSearch size={14}/>,         color: '#0ea5e9' },
+  { value: 'other',               label: 'Other',                icon: <MapPin size={14}/>,             color: '#6b7280' },
 ];
 
 const SEVERITY_LEVELS = [
@@ -23,26 +29,20 @@ const SEVERITY_LEVELS = [
 const typeInfo = (val) => INCIDENT_TYPES.find(t => t.value === val) || INCIDENT_TYPES[7];
 const sevInfo  = (val) => SEVERITY_LEVELS.find(s => s.value === val) || SEVERITY_LEVELS[1];
 
-// ─── Inline icons ─────────────────────────────────────────────────────────────
-const IconPlus    = () => <svg width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>;
-const IconEdit    = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>;
-const IconDelete  = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>;
-const IconPin     = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>;
-const IconFilter  = () => <svg width={15} height={15} viewBox="0 0 24 24" fill="currentColor"><path d="M4.25 5.61C6.27 8.2 10 13 10 13v6c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-6s3.72-4.8 5.74-7.39A1 1 0 0 0 18.95 4H5.04a1 1 0 0 0-.79 1.61z"/></svg>;
-const IconUpvote  = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05A2 2 0 0 0 23 12v-2z"/></svg>;
-const IconCheck   = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>;
-const IconClose   = () => <svg width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>;
+// Using Lucide icons directly in components
 
 // ─── EMPTY STATE ──────────────────────────────────────────────────────────────
 const EmptyState = ({ onAdd }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', textAlign: 'center', gap: 16 }}>
-    <div style={{ fontSize: 56, lineHeight: 1 }}>📍</div>
+    <div style={{ background: '#f5f5f7', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <MapPin size={40} color="#86868b" />
+    </div>
     <div>
       <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', margin: '0 0 6px' }}>No incidents reported yet</h3>
       <p style={{ fontSize: 14, color: '#86868b', margin: 0 }}>Help keep the community safe by reporting danger zones</p>
     </div>
     <button onClick={onAdd} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', borderRadius: 12, background: '#e05a3a', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-      <IconPlus/> Report First Incident
+      <Plus size={16}/> Report First Incident
     </button>
   </div>
 );
@@ -75,17 +75,19 @@ const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) =
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: t.color, background: t.color + '18', padding: '2px 8px', borderRadius: 99, whiteSpace: 'nowrap' }}>{t.label}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: t.color, background: t.color + '18', padding: '2px 8px', borderRadius: 99, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                {t.icon} {t.label}
+              </span>
               <span style={{ fontSize: 11, fontWeight: 700, color: s.color, background: s.bg, padding: '2px 8px', borderRadius: 99 }}>{s.label.toUpperCase()}</span>
-              {incident.status === 'resolved' && <span style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', background: '#f0fdf4', padding: '2px 8px', borderRadius: 99 }}>✓ Resolved</span>}
+              {incident.status === 'resolved' && <span style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', background: '#f0fdf4', padding: '2px 8px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle size={10} /> Resolved</span>}
               {incident.anonymous && <span style={{ fontSize: 11, color: '#86868b', background: '#f5f5f7', padding: '2px 8px', borderRadius: 99 }}>Anonymous</span>}
             </div>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{incident.title}</h3>
           </div>
           {isOwner && (
             <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-              <button onClick={() => onEdit(incident)} title="Edit" style={{ width: 28, height: 28, borderRadius: 8, border: 'none', background: '#f5f5f7', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconEdit/></button>
-              <button onClick={() => onDelete(incident._id)} title="Delete" style={{ width: 28, height: 28, borderRadius: 8, border: 'none', background: '#fef2f2', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconDelete/></button>
+              <button onClick={() => onEdit(incident)} title="Edit" style={{ width: 28, height: 28, borderRadius: 8, border: 'none', background: '#f5f5f7', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Edit2 size={14} /></button>
+              <button onClick={() => onDelete(incident._id)} title="Delete" style={{ width: 28, height: 28, borderRadius: 8, border: 'none', background: '#fef2f2', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={14}/></button>
             </div>
           )}
         </div>
@@ -96,7 +98,7 @@ const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) =
         {/* Location */}
         {incident.location?.address && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10, fontSize: 12, color: '#86868b' }}>
-            <IconPin/> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{incident.location.address}</span>
+            <MapPin size={12} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{incident.location.address}</span>
           </div>
         )}
 
@@ -106,7 +108,7 @@ const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) =
             By <strong>{incident.reportedBy?.name || 'Anonymous'}</strong> · {timeAgo(incident.createdAt)}
           </div>
           <button onClick={() => onUpvote(incident._id)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 99, border: `1px solid ${upvoted ? '#e05a3a' : '#e5e5e7'}`, background: upvoted ? '#fef3f0' : '#fff', color: upvoted ? '#e05a3a' : '#86868b', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
-            <IconUpvote/> {incident.upvotes || 0}
+            <ThumbsUp size={12}/> {incident.upvotes || 0}
           </button>
         </div>
       </div>
@@ -202,15 +204,20 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
       <div style={{ background: '#fff', borderRadius: 24, width: '100%', maxWidth: 560, maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.2)' }}>
         {/* Modal header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 24px 16px', borderBottom: '1px solid #f0f0f0' }}>
-          <div>
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1d1d1f', margin: '0 0 2px' }}>{isEdit ? '✏️ Edit Incident' : '🚨 Report Danger Zone'}</h2>
-            <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Help keep the community informed and safe</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: isEdit ? '#f5f5f7' : '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {isEdit ? <Edit2 size={20} color="#555" /> : <Siren size={20} color="#ef4444" />}
+            </div>
+            <div>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1d1d1f', margin: '0 0 2px' }}>{isEdit ? 'Edit Incident' : 'Report Danger Zone'}</h2>
+              <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Help keep the community informed and safe</p>
+            </div>
           </div>
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: '#f5f5f7', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }}><IconClose/></button>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: '#f5f5f7', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }}><X size={18}/></button>
         </div>
 
         <form onSubmit={handleSubmit} style={{ padding: '20px 24px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {error && <div style={{ padding: '10px 14px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', fontSize: 13, border: '1px solid #fecaca' }}>⚠️ {error}</div>}
+          {error && <div style={{ padding: '10px 14px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', fontSize: 13, border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 8 }}><AlertTriangle size={16} /> {error}</div>}
 
           {/* Title */}
           <div>
@@ -249,16 +256,16 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
             </div>
             <input style={{ ...inp, marginBottom: 8 }} value={form.location.address} onChange={e => setLoc('address', e.target.value)} placeholder="Address or landmark (optional)"/>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button type="button" onClick={useMyLocation} disabled={locLoading} style={{ flex: 1, padding: '8px', borderRadius: 10, border: '1.5px dashed #e05a3a', background: '#fef9f8', color: '#e05a3a', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-                {locLoading ? '📡 Getting…' : '📍 Use My Location'}
+              <button type="button" onClick={useMyLocation} disabled={locLoading} style={{ flex: 1, padding: '8px', borderRadius: 10, border: '1.5px dashed #e05a3a', background: '#fef9f8', color: '#e05a3a', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                {locLoading ? <><Loader2 size={14} className="animate-spin" /> Getting…</> : <><MapPin size={14} /> Use My Location</>}
               </button>
-              <button type="button" onClick={() => onPickLocation(form)} style={{ flex: 1, padding: '8px', borderRadius: 10, border: '1.5px dashed #0ea5e9', background: '#f0f9ff', color: '#0ea5e9', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-                🗺️ Pick on Map
+              <button type="button" onClick={() => onPickLocation(form)} style={{ flex: 1, padding: '8px', borderRadius: 10, border: '1.5px dashed #0ea5e9', background: '#f0f9ff', color: '#0ea5e9', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <Map size={14} /> Pick on Map
               </button>
             </div>
             {form.location.lat && form.location.lng && (
-              <p style={{ fontSize: 11, color: '#86868b', margin: '6px 0 0' }}>
-                📍 {parseFloat(form.location.lat).toFixed(5)}, {parseFloat(form.location.lng).toFixed(5)}
+              <p style={{ fontSize: 11, color: '#86868b', margin: '6px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <MapPin size={10} /> {parseFloat(form.location.lat).toFixed(5)}, {parseFloat(form.location.lng).toFixed(5)}
               </p>
             )}
           </div>
@@ -282,8 +289,8 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
           </label>
 
           {/* Submit */}
-          <button type="submit" disabled={loading} style={{ padding: '13px', borderRadius: 12, background: loading ? '#ccc' : 'linear-gradient(135deg, #e05a3a, #c73e20)', color: '#fff', border: 'none', fontWeight: 800, fontSize: 15, cursor: loading ? 'not-allowed' : 'pointer', letterSpacing: '0.02em' }}>
-            {loading ? '⏳ Saving…' : isEdit ? '💾 Update Incident' : '🚨 Submit Report'}
+          <button type="submit" disabled={loading} style={{ padding: '13px', borderRadius: 12, background: loading ? '#ccc' : 'linear-gradient(135deg, #e05a3a, #c73e20)', color: '#fff', border: 'none', fontWeight: 800, fontSize: 15, cursor: loading ? 'not-allowed' : 'pointer', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            {loading ? <><Loader2 size={18} className="animate-spin" /> Saving…</> : isEdit ? <><Save size={18} /> Update Incident</> : <><Siren size={18} /> Submit Report</>}
           </button>
         </form>
       </div>
@@ -384,19 +391,24 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', margin: '0 0 4px' }}>🚨 Incident Reports</h2>
-          <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Report and track danger zones in your community</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Siren size={24} color="#ef4444" />
+          </div>
+          <div>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Incident Reports</h2>
+            <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Report and track danger zones in your community</p>
+          </div>
         </div>
         <button onClick={() => { setEditTarget(null); setPendingPick(null); setShowForm(true); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 20px', borderRadius: 12, background: 'linear-gradient(135deg, #e05a3a, #c73e20)', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 14px rgba(224,90,58,0.35)', whiteSpace: 'nowrap' }}>
-          <IconPlus/> Report Incident
+          <Plus size={18}/> Report Incident
         </button>
       </div>
 
       {/* Pick mode banner – shown while user is on Safety Map tab selecting a point */}
       {awaitingPick && (
         <div style={{ padding: '12px 18px', background: 'linear-gradient(135deg,#0ea5e9,#0284c7)', color: '#fff', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <span style={{ fontSize: 14, fontWeight: 600 }}>🗺️ Switch to the <strong>Safety Map</strong> tab and click anywhere on the map to set the incident location.</span>
+          <span style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}><Map size={18} /> Switch to the <strong>Safety Map</strong> tab and click anywhere to set the incident location.</span>
           <button onClick={() => { setAwaitingPick(false); onPickLocationMode && onPickLocationMode(false); setShowForm(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: '2px solid rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>Cancel</button>
         </div>
       )}
@@ -404,7 +416,7 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
       {/* Filters bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '14px 18px', background: '#fff', borderRadius: 16, border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 160, background: '#f5f5f7', borderRadius: 10, padding: '7px 12px' }}>
-          <svg width={14} height={14} viewBox="0 0 24 24" fill="#86868b"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <Search size={14} color="#86868b" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search incidents…" style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: '#1d1d1f', fontFamily: 'inherit', width: '100%' }}/>
         </div>
 
@@ -419,7 +431,7 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
         </select>
 
         <button onClick={() => setMyOnly(m => !m)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 10, border: `1.5px solid ${myOnly ? '#e05a3a' : '#e5e5e7'}`, background: myOnly ? '#fef3f0' : '#fff', color: myOnly ? '#e05a3a' : '#86868b', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-          {myOnly ? <IconCheck/> : <IconFilter/>} My Reports
+          {myOnly ? <CheckCircle size={14}/> : <Filter size={14}/>} My Reports
         </button>
       </div>
 

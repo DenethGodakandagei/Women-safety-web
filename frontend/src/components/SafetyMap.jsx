@@ -1,4 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { 
+  Map as MapIcon, MapPin, AlertTriangle, Siren, RefreshCcw, 
+  Flag, Navigation, Info, ChevronLeft, ChevronRight, Target,
+  MessageSquareAlert, Banknote, Eye, Moon, UserSearch, CheckCircle
+} from 'lucide-react';
 import api from '../utils/api';
 import RouteAnalyzer from './RouteAnalyzer';
 
@@ -7,14 +12,14 @@ const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 // ─── Incident config ──────────────────────────────────────────────────────────
 const INCIDENT_TYPES = [
-  { value: 'harassment',          label: 'Harassment',           emoji: '😤', color: '#f97316' },
-  { value: 'assault',             label: 'Assault',              emoji: '🚨', color: '#ef4444' },
-  { value: 'theft',               label: 'Theft',                emoji: '💰', color: '#eab308' },
-  { value: 'stalking',            label: 'Stalking',             emoji: '👁',  color: '#8b5cf6' },
-  { value: 'unsafe_area',         label: 'Unsafe Area',          emoji: '⚠️', color: '#f43f5e' },
-  { value: 'poor_lighting',       label: 'Poor Lighting',        emoji: '🌑', color: '#64748b' },
-  { value: 'suspicious_activity', label: 'Suspicious Activity',  emoji: '🕵️', color: '#0ea5e9' },
-  { value: 'other',               label: 'Other',                emoji: '📌', color: '#6b7280' },
+  { value: 'harassment',          label: 'Harassment',           icon: <MessageSquareAlert size={14}/>, markerText: 'H', color: '#f97316' },
+  { value: 'assault',             label: 'Assault',              icon: <Siren size={14}/>,              markerText: 'A', color: '#ef4444' },
+  { value: 'theft',               label: 'Theft',                icon: <Banknote size={14}/>,           markerText: 'T', color: '#eab308' },
+  { value: 'stalking',            label: 'Stalking',             icon: <Eye size={14}/>,                markerText: 'S', color: '#8b5cf6' },
+  { value: 'unsafe_area',         label: 'Unsafe Area',          icon: <AlertTriangle size={14}/>,      markerText: '!', color: '#f43f5e' },
+  { value: 'poor_lighting',       label: 'Poor Lighting',        icon: <Moon size={14}/>,               markerText: 'L', color: '#64748b' },
+  { value: 'suspicious_activity', label: 'Suspicious Activity',  icon: <UserSearch size={14}/>,         markerText: '?', color: '#0ea5e9' },
+  { value: 'other',               label: 'Other',                icon: <MapPin size={14}/>,             markerText: 'O', color: '#6b7280' },
 ];
 
 const SEVERITY_CONFIG = {
@@ -76,7 +81,9 @@ const buildInfoWindowContent = (incident) => {
   return `
     <div style="font-family:'Inter',system-ui,sans-serif;min-width:220px;max-width:280px;padding:4px 2px 2px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <span style="font-size:20px">${t.emoji}</span>
+        <div style="width:32px;height:32px;border-radius:8px;background:${t.color}18;display:flex;align-items:center;justify-content:center;color:${t.color};font-weight:900;font-size:16px">
+          ${t.markerText}
+        </div>
         <div>
           <div style="font-size:13px;font-weight:800;color:#1d1d1f;line-height:1.2">${incident.title}</div>
           <div style="display:flex;gap:5px;margin-top:3px">
@@ -86,12 +93,12 @@ const buildInfoWindowContent = (incident) => {
         </div>
       </div>
       <p style="font-size:12px;color:#555;line-height:1.5;margin:0 0 8px;max-height:52px;overflow:hidden">${incident.description}</p>
-      ${incident.location?.address ? `<div style="font-size:11px;color:#86868b;margin-bottom:6px">📍 ${incident.location.address}</div>` : ''}
+      ${incident.location?.address ? `<div style="font-size:11px;color:#86868b;margin-bottom:6px;display:flex;align-items:center;gap:4px">📍 ${incident.location.address}</div>` : ''}
       <div style="font-size:11px;color:#86868b;border-top:1px solid #f0f0f0;padding-top:6px;display:flex;justify-content:space-between;align-items:center">
         <span>By <strong>${incident.reportedBy?.name || 'Anonymous'}</strong></span>
         <span>${time} · 👍 ${incident.upvotes || 0}</span>
       </div>
-      ${incident.status === 'resolved' ? '<div style="margin-top:6px;font-size:11px;color:#22c55e;font-weight:700">✓ Resolved</div>' : ''}
+      ${incident.status === 'resolved' ? '<div style="margin-top:6px;font-size:11px;color:#22c55e;font-weight:700;display:flex;align-items:center;gap:4px">Check Resolved</div>' : ''}
     </div>
   `;
 };
@@ -102,12 +109,12 @@ const MapLegend = ({ filter, onFilter }) => (
     <p style={{ fontSize: 11, fontWeight: 800, color: '#555', letterSpacing: '0.05em', margin: '0 0 10px' }}>FILTER BY TYPE</p>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
       <button onClick={() => onFilter('')} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', borderRadius: 8, border: 'none', background: !filter ? '#e05a3a18' : 'transparent', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
-        <span style={{ fontSize: 13 }}>🗺️</span>
+        <MapPin size={14} color={!filter ? '#e05a3a' : '#555'} />
         <span style={{ fontSize: 12, fontWeight: filter ? 500 : 700, color: !filter ? '#e05a3a' : '#555' }}>All Incidents</span>
       </button>
       {INCIDENT_TYPES.map(t => (
         <button key={t.value} onClick={() => onFilter(t.value === filter ? '' : t.value)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', borderRadius: 8, border: 'none', background: filter === t.value ? t.color + '18' : 'transparent', cursor: 'pointer', textAlign: 'left', width: '100%' }}>
-          <span style={{ fontSize: 13 }}>{t.emoji}</span>
+          <span style={{ color: filter === t.value ? t.color : '#555' }}>{t.icon}</span>
           <span style={{ fontSize: 12, fontWeight: filter === t.value ? 700 : 500, color: filter === t.value ? t.color : '#555' }}>{t.label}</span>
         </button>
       ))}
@@ -295,7 +302,7 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
             <svg xmlns="http://www.w3.org/2000/svg" width="38" height="44" viewBox="0 0 38 44">
               <circle cx="19" cy="17" r="15" fill="${sev.color}" stroke="white" stroke-width="3"/>
               <polygon points="19,44 11,28 27,28" fill="${sev.color}"/>
-              <text x="19" y="22" text-anchor="middle" font-size="13" font-family="sans-serif">${t.emoji === '⚠️' ? '!' : t.emoji.replace(/[\uFE0F]/g, '')}</text>
+              <text x="19" y="22" text-anchor="middle" font-size="14" font-weight="900" font-family="Inter, sans-serif" fill="white">${t.markerText}</text>
             </svg>
           `)}`,
           scaledSize: new mapsApi.Size(38, 44),
@@ -332,16 +339,21 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', margin: '0 0 4px' }}>🗺️ Interactive Safety Map</h2>
-          <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Live danger zones from community reports. Click a marker for details.</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: '#eef4ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <MapIcon size={24} color="#3b82f6" />
+          </div>
+          <div>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Interactive Safety Map</h2>
+            <p style={{ fontSize: 13, color: '#86868b', margin: 0 }}>Live danger zones from community reports. Click a marker for details.</p>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={() => setShowRouteSearch(!showRouteSearch)} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 18px', borderRadius: 12, background: showRouteSearch ? '#e05a3a' : '#fff', border: '1.5px solid #e5e5e7', color: showRouteSearch ? '#fff' : '#555', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            🚩 Plan Safe Route
+          <button onClick={() => setShowRouteSearch(!showRouteSearch)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 12, background: showRouteSearch ? '#e05a3a' : '#fff', border: '1.5px solid #e5e5e7', color: showRouteSearch ? '#fff' : '#555', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <Flag size={16} /> Plan Safe Route
           </button>
-          <button onClick={fetchIncidents} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 18px', borderRadius: 12, background: '#fff', border: '1.5px solid #e5e5e7', color: '#555', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            🔄 Refresh
+          <button onClick={fetchIncidents} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 12, background: '#fff', border: '1.5px solid #e5e5e7', color: '#555', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <RefreshCcw size={16}/> Refresh
           </button>
         </div>
       </div>
@@ -365,9 +377,9 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
             </div>
             <button 
               onClick={() => setDestination(routeInput)}
-              style={{ padding: '12px 24px', borderRadius: 12, background: '#e05a3a', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
+              style={{ padding: '12px 24px', borderRadius: 12, background: '#e05a3a', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
             >
-              Analyze Route
+              <Navigation size={18}/> Analyze Route
             </button>
 
           </div>
@@ -379,12 +391,12 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
       {/* Stats bar */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
         {[
-          { label: 'Total Reports',   value: stats.total,    icon: '📍', color: '#3b82f6', bg: '#eff6ff' },
-          { label: 'Active Incidents', value: stats.active,   icon: '🚨', color: '#ef4444', bg: '#fef2f2' },
-          { label: 'Critical Zones',  value: stats.critical, icon: '⚠️', color: '#f97316', bg: '#fff7ed' },
+          { label: 'Total Reports',   value: stats.total,    icon: <MapPin size={22}/>,      color: '#3b82f6', bg: '#eff6ff' },
+          { label: 'Active Incidents', value: stats.active,   icon: <Siren size={22}/>,       color: '#ef4444', bg: '#fef2f2' },
+          { label: 'Critical Zones',  value: stats.critical, icon: <AlertTriangle size={22}/>, color: '#f97316', bg: '#fff7ed' },
         ].map(s => (
-          <div key={s.label} style={{ background: s.bg, borderRadius: 16, padding: '14px 18px', border: `1px solid ${s.color}25`, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 24 }}>{s.icon}</span>
+          <div key={s.label} style={{ background: s.bg, borderRadius: 16, padding: '14px 18px', border: `1px solid ${s.color}25`, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ color: s.color }}>{s.icon}</div>
             <div>
               <p style={{ fontSize: 22, fontWeight: 800, color: s.color, margin: 0, lineHeight: 1 }}>{s.value}</p>
               <p style={{ fontSize: 11, color: '#86868b', margin: '3px 0 0', fontWeight: 600, letterSpacing: '0.03em' }}>{s.label.toUpperCase()}</p>
@@ -395,8 +407,8 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
 
       {/* Pick mode banner — pointer-events:none so it doesn't intercept map clicks below */}
       {isPickMode && (
-        <div style={{ padding: '12px 18px', background: 'linear-gradient(135deg,#0ea5e9,#0284c7)', color: '#fff', borderRadius: 14, fontSize: 14, fontWeight: 600, pointerEvents: 'none', userSelect: 'none' }}>
-          🎯 Click <strong>anywhere on the map</strong> below to set the incident location
+        <div style={{ padding: '12px 18px', background: 'linear-gradient(135deg,#0ea5e9,#0284c7)', color: '#fff', borderRadius: 14, fontSize: 14, fontWeight: 600, pointerEvents: 'none', userSelect: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Target size={18}/> Click <strong>anywhere on the map</strong> below to set the incident location
         </div>
       )}
 
@@ -412,9 +424,9 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
         {/* Toggle legend button */}
         <button
           onClick={() => setShowLegend(l => !l)}
-          style={{ position: 'absolute', top: 14, left: 14, zIndex: 10, padding: '7px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(0,0,0,0.1)', fontWeight: 700, fontSize: 12, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', backdropFilter: 'blur(8px)' }}
+          style={{ position: 'absolute', top: 14, left: 14, zIndex: 10, padding: '7px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(0,0,0,0.1)', fontWeight: 700, fontSize: 12, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 6 }}
         >
-          {showLegend ? '◀ Hide Legend' : '▶ Show Legend'}
+          {showLegend ? <><ChevronLeft size={14}/> Hide Legend</> : <><ChevronRight size={14}/> Show Legend</>}
         </button>
 
         {/* User location badge */}
@@ -426,10 +438,12 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
         )}
 
         {mapError && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fef2f2', zIndex: 5, gap: 12 }}>
-            <span style={{ fontSize: 40 }}>🗺️</span>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fef2f2', zIndex: 5, gap: 12, textAlign: 'center', padding: 20 }}>
+            <div style={{ background: '#fff', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+               <MapIcon size={32} color="#dc2626" />
+            </div>
             <p style={{ fontSize: 15, fontWeight: 700, color: '#dc2626', margin: 0 }}>{mapError}</p>
-            <p style={{ fontSize: 13, color: '#86868b', margin: 0, textAlign: 'center', maxWidth: 360 }}>
+            <p style={{ fontSize: 13, color: '#86868b', margin: 0, maxWidth: 360 }}>
               Add <code>VITE_GOOGLE_MAPS_API_KEY</code> to your <code>.env</code> file with a valid key.
             </p>
           </div>
@@ -452,12 +466,12 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
 
       {/* Incident type quick filter pills */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button onClick={() => setFilterType('')} style={{ padding: '6px 14px', borderRadius: 99, border: `1.5px solid ${!filterType ? '#e05a3a' : '#e5e5e7'}`, background: !filterType ? '#fef3f0' : '#fff', color: !filterType ? '#e05a3a' : '#86868b', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
-          All
+        <button onClick={() => setFilterType('')} style={{ padding: '7px 16px', borderRadius: 99, border: `1.5px solid ${!filterType ? '#e05a3a' : '#e5e5e7'}`, background: !filterType ? '#fef3f0' : '#fff', color: !filterType ? '#e05a3a' : '#86868b', fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <MapIcon size={12}/> All
         </button>
         {INCIDENT_TYPES.map(t => (
-          <button key={t.value} onClick={() => setFilterType(filterType === t.value ? '' : t.value)} style={{ padding: '6px 14px', borderRadius: 99, border: `1.5px solid ${filterType === t.value ? t.color : '#e5e5e7'}`, background: filterType === t.value ? t.color + '18' : '#fff', color: filterType === t.value ? t.color : '#86868b', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
-            {t.emoji} {t.label}
+          <button key={t.value} onClick={() => setFilterType(filterType === t.value ? '' : t.value)} style={{ padding: '7px 16px', borderRadius: 99, border: `1.5px solid ${filterType === t.value ? t.color : '#e5e5e7'}`, background: filterType === t.value ? t.color + '18' : '#fff', color: filterType === t.value ? t.color : '#86868b', fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            {t.icon} {t.label}
           </button>
         ))}
       </div>

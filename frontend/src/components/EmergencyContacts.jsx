@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Users, Phone, Mail, Trash2, Plus, AlertCircle, CheckCircle } from 'lucide-react';
 import api from '../utils/api';
 
 const RELATIONS = ['family', 'friend', 'colleague', 'partner', 'other'];
@@ -80,15 +81,15 @@ const EmergencyContacts = () => {
         </div>
         <button
           onClick={() => setShowForm(v => !v)}
-          style={s.btn(showForm ? '#f0f0f0' : '#e05a3a', showForm ? '#1d1d1f' : '#fff')}
+          style={{ ...s.btn(showForm ? '#f0f0f0' : '#e05a3a', showForm ? '#1d1d1f' : '#fff'), display: 'flex', alignItems: 'center', gap: 8 }}
         >
-          {showForm ? '✕ Cancel' : '+ Add Contact'}
+          {showForm ? '✕ Cancel' : <><Plus size={16} /> Add Contact</>}
         </button>
       </div>
 
       {/* Alerts */}
-      {success && <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', padding: '12px 16px', borderRadius: 12, fontSize: 14, fontWeight: 500 }}>✓ {success}</div>}
-      {error   && <div style={{ background: '#fff1f0', border: '1px solid #fecaca', color: '#dc2626', padding: '12px 16px', borderRadius: 12, fontSize: 14, fontWeight: 500 }}>⚠ {error}</div>}
+      {success && <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', padding: '12px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle size={16} /> {success}</div>}
+      {error   && <div style={{ background: '#fff1f0', border: '1px solid #fecaca', color: '#dc2626', padding: '12px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}><AlertCircle size={16} /> {error}</div>}
 
       {/* Add Form */}
       {showForm && (
@@ -137,8 +138,10 @@ const EmergencyContacts = () => {
       {loading ? (
         <div style={{ textAlign: 'center', padding: 40, color: '#86868b' }}>Loading contacts…</div>
       ) : contacts.length === 0 ? (
-        <div style={{ ...s.card, textAlign: 'center', padding: 48 }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>👥</div>
+        <div style={{ ...s.card, textAlign: 'center', padding: 48, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ background: '#f5f5f7', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+             <Users size={32} color="#86868b" />
+          </div>
           <p style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', marginBottom: 6 }}>No contacts yet</p>
           <p style={{ fontSize: 14, color: '#86868b' }}>Add someone who should be notified in an emergency.</p>
         </div>
@@ -167,7 +170,10 @@ const EmergencyContacts = () => {
                     color: relationColor(c.relation)
                   }}>{c.relation?.toUpperCase()}</span>
                 </div>
-                <p style={{ fontSize: 13, color: '#86868b' }}>📞 {c.phone}{c.email ? ` · ✉ ${c.email}` : ''}</p>
+                <p style={{ fontSize: 13, color: '#86868b', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Phone size={12} /> {c.phone}</span>
+                  {c.email && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>· <Mail size={12} /> {c.email}</span>}
+                </p>
               </div>
               {/* Priority badge */}
               <div style={{
@@ -178,12 +184,15 @@ const EmergencyContacts = () => {
               {/* Delete */}
               <button onClick={() => handleDelete(c._id, c.name)} style={{
                 background: '#fff1f0', color: '#dc2626', border: '1px solid #fecaca',
-                borderRadius: 10, padding: '6px 12px', fontSize: 12, fontWeight: 600,
-                cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s'
+                borderRadius: 10, padding: '8px 12px', fontSize: 12, fontWeight: 700,
+                cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s',
+                display: 'flex', alignItems: 'center', gap: 6
               }}
                 onMouseEnter={e => e.currentTarget.style.background = '#fecaca'}
                 onMouseLeave={e => e.currentTarget.style.background = '#fff1f0'}
-              >Remove</button>
+              >
+                <Trash2 size={14} /> Remove
+              </button>
             </div>
           ))}
         </div>

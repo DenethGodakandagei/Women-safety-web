@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --font-main: "Inter", system-ui, -apple-system, sans-serif;
+  --font-main: "Montserrat", sans-serif;
+  --font-secondary: "Open Sans", sans-serif;
   --color-accent: #ff3b30;
   --color-accent-hover: #fa3125;
   --color-text: #1d1d1f;
-  --color-text-secondary: #86868b;
+  --color-text-secondary: #636366;
   --color-bg-secondary: #fbfbfd;
 }
 
