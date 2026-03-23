@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Plus, Edit2, Trash2, MapPin, Filter, ThumbsUp, CheckCircle, X, 
   Search, Siren, Banknote, Eye, AlertTriangle, Moon, 
-  Map as MapIcon, Loader2, Save, Frown, AlertCircle
+  Map as MapIcon, Loader2, Save, Frown, AlertCircle, Navigation as NavigationIcon
 } from 'lucide-react';
 import api from '../utils/api';
 
@@ -62,63 +62,71 @@ const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) =
   };
 
   return (
-    <div className="card-apple" style={{ 
-      padding: '24px',
-      position: 'relative',
-      overflow: 'hidden',
-      transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
-      border: '1px solid rgba(255,255,255,0.4)',
-      background: 'rgba(255,255,255,0.7)',
-      backdropFilter: 'blur(16px)',
-      boxShadow: '0 10px 30px rgba(0,0,0,0.03)'
+    <div className="card-apple group" style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 24,
+      background: 'rgba(255, 255, 255, 0.85)',
+      backdropFilter: 'blur(30px)',
+      border: '1px solid rgba(255, 255, 255, 0.7)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.03)',
+      padding: '32px',
+      transition: 'all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1)',
+      cursor: 'default'
     }}>
-      {/* Subtle indicator bar */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: s.color, opacity: 0.8 }}/>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div className="glass-dark" style={{ width: 40, height: 40, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${t.color}10` }}>
-            <span style={{ color: t.color }}>{t.icon}</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', gap: 20 }}>
+          <div style={{ width: 60, height: 60, borderRadius: 20, background: `${t.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${t.color}15`, flexShrink: 0 }}>
+             <span style={{ color: t.color }}>{React.cloneElement(t.icon, { size: 28, strokeWidth: 2.2 })}</span>
           </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 10, fontWeight: 600, color: s.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label} Severity</span>
-              {incident.status === 'resolved' && <span style={{ fontSize: 10, fontWeight: 600, color: '#34c759', display: 'flex', alignItems: 'center', gap: 3 }}><CheckCircle size={10} /> Resolved</span>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+               <span style={{ fontSize: 10, fontWeight: 700, color: s.color, textTransform: 'uppercase', letterSpacing: '0.12em', background: `${s.color}10`, padding: '4px 12px', borderRadius: 10 }}>{s.label} Severity</span>
+               {incident.status === 'resolved' && (
+                 <span style={{ fontSize: 10, fontWeight: 700, color: '#34c759', background: 'rgba(52,199,89,0.1)', padding: '4px 12px', borderRadius: 10 }}>RESOLVED</span>
+               )}
             </div>
-            <h3 style={{ fontSize: 17, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.01em' }}>{incident.title}</h3>
+            <h3 style={{ fontSize: 24, fontWeight: 500, color: '#1d1d1f', margin: 0, letterSpacing: '-0.04em', fontFamily: 'var(--font-display)' }}>{incident.title}</h3>
           </div>
         </div>
+        
         {isOwner && (
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={() => onEdit(incident)} className="glass-dark" style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Edit2 size={14} /></button>
-            <button onClick={() => onDelete(incident._id)} className="glass-dark" style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: 'rgba(255, 59, 48, 0.1)', color: '#ff3b30', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={14}/></button>
-          </div>
+          <button 
+            onClick={() => onDelete(incident._id)} 
+            className="hover-scale opacity-0 group-hover:opacity-100" 
+            style={{ width: 36, height: 36, borderRadius: 12, border: 'none', background: 'rgba(255, 59, 48, 0.1)', color: '#ff3b30', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}
+          >
+            <Trash2 size={16}/>
+          </button>
         )}
       </div>
 
-      <p style={{ fontSize: 14, color: '#636366', lineHeight: 1.6, margin: '0 0 20px', fontWeight: 500 }}>{incident.description}</p>
+      <p style={{ fontSize: 16, color: '#636366', lineHeight: 1.6, margin: 0, fontWeight: 500, flex: 1, letterSpacing: '-0.01em' }}>{incident.description}</p>
 
       {incident.location?.address && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: '#8e8e93', fontWeight: 600 }}>
-          <MapPin size={14} /> <span>{incident.location.address}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#8e8e93', fontSize: 13, fontWeight: 600 }}>
+          <MapPin size={16} color={s.color} /> <span>{incident.location.address}</span>
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.04)', paddingTop: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 28, background: 'linear-gradient(135deg, #eee, #ddd)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 600 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #f5f5f7, #e5e5e7)', border: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 600, color: '#1d1d1f' }}>
             {incident.reportedBy?.name?.[0] || 'A'}
           </div>
-          <div style={{ fontSize: 12, color: '#8e8e93', fontWeight: 600 }}>
-            {incident.anonymous ? 'Anonymous' : incident.reportedBy?.name} · <span style={{ fontWeight: 500 }}>{timeAgo(incident.createdAt)}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span style={{ fontSize: 14, color: '#1d1d1f', fontWeight: 600 }}>{incident.anonymous ? 'Anonymous User' : incident.reportedBy?.name}</span>
+            <span style={{ fontSize: 12, color: '#8e8e93', fontWeight: 500 }}>{timeAgo(incident.createdAt)}</span>
           </div>
         </div>
         <button 
           onClick={() => onUpvote(incident._id)} 
           className={upvoted ? 'btn-premium-active' : 'btn-premium'}
-          style={{ padding: '6px 14px', fontSize: 12, borderRadius: 12 }}
+          style={{ padding: '0 20px', fontSize: 14, borderRadius: 16, height: 44, gap: 12, transition: 'all 0.3s' }}
         >
-          <ThumbsUp size={14} fill={upvoted ? 'currentColor' : 'none'}/> {incident.upvotes || 0}
+          <ThumbsUp size={18} fill={upvoted ? 'currentColor' : 'none'} strokeWidth={2.5} /> 
+          <span style={{ fontWeight: 700 }}>{incident.upvotes || 0}</span>
         </button>
       </div>
     </div>
@@ -153,8 +161,8 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
   const [error, setError]           = useState('');
   const [locLoading, setLocLoading] = useState(false);
 
-  const set    = (key, val) => setForm(f => ({ ...f, [key]: val }));
-  const setLoc = (key, val) => setForm(f => ({ ...f, location: { ...f.location, [key]: val } }));
+  const updateField = (key, val) => setForm(f => ({ ...f, [key]: val }));
+  const setLoc      = (key, val) => setForm(f => ({ ...f, location: { ...f.location, [key]: val } }));
 
   // If pickedCoords arrive while form is already open (edge case guard)
   useEffect(() => {
@@ -219,7 +227,7 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
     fontWeight: 500,
     transition: 'all 0.2s'
   };
-  const label = { fontSize: 11, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, display: 'block' };
+  const labelStyle = { fontSize: 11, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, display: 'block' };
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={e => e.target === e.currentTarget && onClose()}>
@@ -243,39 +251,39 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
 
           {/* Title */}
           <div>
-            <label style={label}>Incident Title</label>
-            <input value={form.title} onChange={e => set('title', e.target.value)} style={inp} placeholder="e.g. Broken streetlight, Heavy harassment zone..." required maxLength={120}/>
+            <label style={labelStyle}>Incident Title</label>
+            <input value={form.title} onChange={e => updateField('title', e.target.value)} style={inp} placeholder="e.g. Broken streetlight, Heavy harassment zone..." required maxLength={120}/>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
-              <label style={label}>Category</label>
-              <select value={form.type} onChange={e => set('type', e.target.value)} style={{ ...inp, appearance: 'none', cursor: 'pointer' }}>
+              <label style={labelStyle}>Category</label>
+              <select value={form.type} onChange={e => updateField('type', e.target.value)} style={{ ...inp, appearance: 'none', cursor: 'pointer' }}>
                 {INCIDENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
             <div>
-              <label style={label}>Severity Level</label>
-              <select value={form.severity} onChange={e => set('severity', e.target.value)} style={{ ...inp, appearance: 'none', cursor: 'pointer' }}>
+              <label style={labelStyle}>Severity Level</label>
+              <select value={form.severity} onChange={e => updateField('severity', e.target.value)} style={{ ...inp, appearance: 'none', cursor: 'pointer' }}>
                 {SEVERITY_LEVELS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
           </div>
 
           <div>
-            <label style={label}>Detailed Description</label>
-            <textarea value={form.description} onChange={e => set('description', e.target.value)} style={{ ...inp, minHeight: 140, resize: 'none' }} placeholder="Share more context to help others..." required maxLength={1000}/>
+            <label style={labelStyle}>Detailed Description</label>
+            <textarea value={form.description} onChange={e => updateField('description', e.target.value)} style={{ ...inp, minHeight: 140, resize: 'none' }} placeholder="Share more context to help others..." required maxLength={1000}/>
           </div>
 
           <div>
-            <label style={label}>Location Coordinates</label>
+            <label style={labelStyle}>Location Coordinates</label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               <input type="number" step="any" value={form.location.lat} onChange={e => setLoc('lat', e.target.value)} style={inp} placeholder="Latitude" required/>
               <input type="number" step="any" value={form.location.lng} onChange={e => setLoc('lng', e.target.value)} style={inp} placeholder="Longitude" required/>
             </div>
             <div style={{ display: 'flex', gap: 16 }}>
               <button type="button" onClick={useMyLocation} className="btn-premium" style={{ flex: 1, padding: '16px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f', borderRadius: 16 }}>
-                <Navigation size={18} /> My GPS
+                <NavigationIcon size={18} /> My GPS
               </button>
               <button type="button" onClick={() => onPickLocation(form)} className="btn-premium btn-premium-active" style={{ flex: 1, padding: '16px', borderRadius: 16 }}>
                 <MapIcon size={18} /> Pick on Map
@@ -284,7 +292,7 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
           </div>
 
           <label style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', fontSize: 15, color: '#1d1d1f', fontWeight: 600, padding: '20px', background: 'rgba(0,0,0,0.03)', borderRadius: 20 }}>
-            <input type="checkbox" checked={form.anonymous} onChange={e => set('anonymous', e.target.checked)} style={{ width: 24, height: 24, accentColor: '#ff3b30', borderRadius: 8 }}/>
+            <input type="checkbox" checked={form.anonymous} onChange={e => updateField('anonymous', e.target.checked)} style={{ width: 24, height: 24, accentColor: '#ff3b30', borderRadius: 8 }}/>
             Post report anonymously
           </label>
 
@@ -443,15 +451,14 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
             const count = incidents.filter(i => i.severity === sev).length;
             const s = sevInfo(sev);
             return count > 0 ? (
-              <div key={sev} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.5)', border: `1px solid ${s.color}20`, boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, boxShadow: `0 0 8px ${s.color}60` }}/>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#1d1d1f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{count} {s.label}</span>
+              <div key={sev} className="glass-dark" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 18px', borderRadius: 14, background: 'rgba(255,255,255,0.6)', border: `1px solid ${s.color}15`, boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, boxShadow: `0 0 12px ${s.color}a0`, animation: 'pulse-subtle 2s infinite' }}/>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#1d1d1f', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{count} {s.label}</span>
               </div>
             ) : null;
           })}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.03)', color: '#8e8e93' }}>
-            <AlertCircle size={14} />
-            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.04em' }}>{incidents.length} TOTAL REPORTS</span>
+          <div className="glass-dark" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 18px', borderRadius: 14, background: 'rgba(0,0,0,0.03)', border: 'none', color: '#8e8e93' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{incidents.length} TOTAL REPORTS</span>
           </div>
         </div>
       )}

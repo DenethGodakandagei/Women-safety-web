@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Map as MapIcon, MapPin, AlertTriangle, Siren, RefreshCcw, 
-  Flag, Navigation, Info, ChevronLeft, ChevronRight, Target,
+  Flag, Navigation as NavigationIcon, Info, ChevronLeft, ChevronRight, Target,
   Banknote, Eye, Moon, CheckCircle, XCircle, Square, Play, Search as SearchIcon
 } from 'lucide-react';
 import api from '../utils/api';
@@ -381,7 +381,7 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button onClick={() => setShowRouteSearch(!showRouteSearch)} className={showRouteSearch ? 'btn-premium btn-premium-active' : 'btn-premium'} style={{ padding: '12px 24px', fontSize: 14 }}>
-            <Navigation size={18} /> Plan Safe Route
+            <NavigationIcon size={18} /> Plan Safe Route
           </button>
           <button onClick={fetchIncidents} className="btn-premium" style={{ padding: '12px 24px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f' }}>
             <RefreshCcw size={18}/>

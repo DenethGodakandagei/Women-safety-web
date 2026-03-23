@@ -9,9 +9,9 @@ import RiskAnalysisCard from '../components/RiskAnalysisCard';
 import api from '../utils/api';
 
 import {
-  Shield, Home, Users, Activity, Bell, Settings, Search,
-  SlidersHorizontal, Map, Lock, MapPin, AlertTriangle,
-  Sparkles, PhoneCall, Navigation, BellOff
+  Shield, Home, Users, Activity as ActivityIcon, Bell, Settings, Search,
+  SlidersHorizontal, Map as MapIcon, Lock, MapPin, AlertTriangle,
+  Sparkles, PhoneCall, Navigation as NavigationIcon, BellOff
 } from 'lucide-react';
 
 // ─── Nav item ─────────────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div className="glass-dark" style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,122,255,0.05)' }}>
-                <Navigation size={18} color="#007aff" />
+                <NavigationIcon size={18} color="#007aff" />
               </div>
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.03em' }}>Live Tracking</h3>
@@ -123,7 +123,7 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
               </div>
             ) : (
               <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Navigation size={24} color="#8e8e93" className="animate-spin-slow" />
+                <NavigationIcon size={24} color="#8e8e93" className="animate-spin-slow" />
               </div>
             )}
           </div>
@@ -161,7 +161,7 @@ const OverviewTab = ({ user, contacts, userLocation, stats }) => {
         <div className="card-apple" style={{ padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
             <div className="glass-dark" style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,149,0,0.05)' }}>
-              <Activity size={18} color="#ff9500" />
+              <ActivityIcon size={18} color="#ff9500" />
             </div>
             <div>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.03em' }}>Safety Index</h3>
@@ -273,9 +273,9 @@ const Dashboard = () => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: <Home size={20} /> },
     { id: 'contacts', label: 'Contacts', icon: <Users size={20} />, badge: contacts.length === 0 },
-    { id: 'sos', label: 'SOS & Map', icon: <Activity size={20} /> },
+    { id: 'sos', label: 'SOS & Map', icon: <ActivityIcon size={20} /> },
     { id: 'incidents', label: 'Incidents', icon: <AlertTriangle size={20} /> },
-    { id: 'safetymap', label: 'Safety Map', icon: <Map size={20} /> },
+    { id: 'safetymap', label: 'Safety Map', icon: <MapIcon size={20} /> },
     { id: 'alerts', label: 'Alerts', icon: <Bell size={20} /> },
   ];
 

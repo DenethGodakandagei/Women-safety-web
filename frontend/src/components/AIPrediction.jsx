@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Navigation, ShieldCheck } from 'lucide-react';
+import { Navigation as NavigationIcon, ShieldCheck } from 'lucide-react';
 
 const AIPrediction = () => {
     return (
@@ -36,7 +36,7 @@ const AIPrediction = () => {
               
               <div className="relative w-32 h-32 rounded-[40px] bg-white shadow-2xl flex items-center justify-center group overflow-hidden">
                 <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <Navigation size={48} className="text-accent group-hover:rotate-12 transition-transform" />
+                <NavigationIcon size={48} className="text-accent group-hover:rotate-12 transition-transform" />
               </div>
               
               <motion.div 

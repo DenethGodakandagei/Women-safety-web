@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   ShieldAlert, AlertTriangle, MapPin, Siren, Radio,
   CheckCircle, XCircle, Square, Play, Map as MapIcon,
-  Loader2, Info, Clock, Navigation, Activity, X
+  Loader2, Info, Clock, Navigation as NavigationIcon, Activity as ActivityIcon, X
 } from 'lucide-react';
 import api from '../utils/api';
 
@@ -121,7 +121,7 @@ const SOSPanel = ({ location, contacts }) => {
             )}
             {!hasLocation && (
               <div style={{ background: 'rgba(0, 122, 255, 0.08)', borderRadius: 14, padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#007aff', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Navigation size={18} className="animate-pulse" /> Acquiring high-precision GPS…
+                <NavigationIcon size={18} className="animate-pulse" /> Acquiring high-precision GPS…
               </div>
             )}
 
