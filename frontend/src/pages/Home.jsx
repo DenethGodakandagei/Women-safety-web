@@ -11,7 +11,7 @@ import Footer from '../components/Footer';
 
 const Home = () => {
   return (
-    <div className="bg-white min-h-screen text-text selection:bg-accent/10 selection:text-white">
+    <div className="theme-dark min-h-screen text-text selection:bg-accent/10 selection:text-white">
       <Navbar />
       
       <main>

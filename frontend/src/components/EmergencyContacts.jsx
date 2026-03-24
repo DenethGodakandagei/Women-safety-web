@@ -9,15 +9,15 @@ const GuardianModal = ({ isOpen, onClose, onSave, submitting, form, setForm, isE
   if (!isOpen) return null;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(129, 129, 129, 0.4)', backdropFilter: 'blur(6px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="card-apple" style={{ background: 'rgba(255,255,255,0.9)', borderRadius: 32, width: '100%', maxWidth: 540, border: '1px solid rgba(255,255,255,0.5)', padding: 0, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.15)' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="card-apple glass-dark" style={{ background: 'rgba(28,28,30,0.95)', borderRadius: 32, width: '100%', maxWidth: 540, border: '1px solid rgba(255,255,255,0.1)', padding: 0, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.4)' }}>
         <div style={{ padding: '40px 40px 24px', position: 'relative' }}>
-          <div className="glass-dark" style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(0, 122, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
-            <Shield size={32} color="#007aff" />
+          <div className="glass-dark" style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(10, 132, 255, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+            <Shield size={32} color="#0a84ff" />
           </div>
-          <h2 style={{ fontSize: 28, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: 0 }}>{isEdit ? 'Update Details' : 'Add Guardian'}</h2>
-          <p style={{ fontSize: 15, color: '#636366', marginTop: 6, fontWeight: 500 }}>Expand your trusted circle for instant SOS alerts.</p>
-          <button onClick={onClose} style={{ position: 'absolute', top: 32, right: 32, width: 40, height: 40, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.03)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1d1d1f' }}><X size={20} /></button>
+          <h2 style={{ fontSize: 28, fontWeight: 500, color: '#f5f5f7', letterSpacing: '-0.04em', margin: 0 }}>{isEdit ? 'Update Details' : 'Add Guardian'}</h2>
+          <p style={{ fontSize: 15, color: '#8e8e93', marginTop: 6, fontWeight: 500 }}>Expand your trusted circle for instant SOS alerts.</p>
+          <button onClick={onClose} style={{ position: 'absolute', top: 32, right: 32, width: 40, height: 40, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.05)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f5f5f7' }}><X size={20} /></button>
         </div>
 
         <form onSubmit={onSave} style={{ padding: '0 40px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -26,28 +26,28 @@ const GuardianModal = ({ isOpen, onClose, onSave, submitting, form, setForm, isE
               <label style={{ fontSize: 11, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, display: 'block' }}>Full Name</label>
               <div style={{ position: 'relative' }}>
                 <Users size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#8e8e93' }} />
-                <input required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="glass-dark" style={{ width: '100%', padding: '16px 16px 16px 48px', borderRadius: 16, border: 'none', background: 'rgba(0,0,0,0.03)', fontSize: 16, fontWeight: 600, outline: 'none' }} placeholder="e.g. Sarah Johnson" />
+                <input required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="glass-dark" style={{ width: '100%', padding: '16px 16px 16px 48px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontSize: 16, fontWeight: 600, outline: 'none', color: '#f5f5f7' }} placeholder="e.g. Sarah Johnson" />
               </div>
             </div>
 
             <div>
               <label style={{ fontSize: 11, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, display: 'block' }}>Phone Number</label>
               <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, fontWeight: 700, color: '#1d1d1f' }}>🇱🇰 +94</span>
-                <input required type="tel" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} className="glass-dark" style={{ width: '100%', padding: '16px 16px 16px 78px', borderRadius: 16, border: 'none', background: 'rgba(0,0,0,0.03)', fontSize: 16, fontWeight: 600, outline: 'none' }} placeholder="7X XXX XXXX" />
+                <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, fontWeight: 700, color: '#f5f5f7' }}>🇱🇰 +94</span>
+                <input required type="tel" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} className="glass-dark" style={{ width: '100%', padding: '16px 16px 16px 78px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontSize: 16, fontWeight: 600, outline: 'none', color: '#f5f5f7' }} placeholder="7X XXX XXXX" />
               </div>
             </div>
 
             <div>
               <label style={{ fontSize: 11, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, display: 'block' }}>Relationship</label>
-              <select value={form.relation} onChange={e => setForm(p => ({ ...p, relation: e.target.value }))} className="glass-dark" style={{ width: '100%', padding: '16px', borderRadius: 16, border: 'none', background: 'rgba(0,0,0,0.03)', fontSize: 16, fontWeight: 600, outline: 'none', appearance: 'none', cursor: 'pointer' }}>
-                {RELATIONS.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+              <select value={form.relation} onChange={e => setForm(p => ({ ...p, relation: e.target.value }))} className="glass-dark" style={{ width: '100%', padding: '16px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontSize: 16, fontWeight: 600, outline: 'none', appearance: 'none', cursor: 'pointer', color: '#f5f5f7' }}>
+                {RELATIONS.map(r => <option key={r} value={r} style={{ background: '#1c1c1e' }}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
               </select>
             </div>
 
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={{ fontSize: 11, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, display: 'block' }}>Email (Optional)</label>
-              <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} className="glass-dark" style={{ width: '100%', padding: '16px', borderRadius: 16, border: 'none', background: 'rgba(0,0,0,0.03)', fontSize: 16, fontWeight: 600, outline: 'none' }} placeholder="guardian@example.com" />
+              <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} className="glass-dark" style={{ width: '100%', padding: '16px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontSize: 16, fontWeight: 600, outline: 'none', color: '#f5f5f7' }} placeholder="guardian@example.com" />
             </div>
           </div>
 
@@ -151,8 +151,8 @@ const EmergencyContacts = () => {
       {/* Header */}
       <div className="responsive-flex-column" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
         <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: 36, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: 0 }}>Trusted Circle</h2>
-          <p style={{ fontSize: 16, color: '#636366', marginTop: 6, fontWeight: 500 }}>Individuals who will receive your real-time GPS signal in an emergency.</p>
+          <h2 style={{ fontSize: 36, fontWeight: 500, color: '#f5f5f7', letterSpacing: '-0.04em', margin: 0 }}>Trusted Circle</h2>
+          <p style={{ fontSize: 16, color: '#8e8e93', marginTop: 6, fontWeight: 500 }}>Individuals who will receive your real-time GPS signal in an emergency.</p>
         </div>
         <button onClick={openAddModal} className="btn-premium btn-premium-active animate-pulse-subtle" style={{ padding: '14px 28px', borderRadius: 18, fontSize: 15 }}>
           <Plus size={20} /> Add Guardian
@@ -186,23 +186,20 @@ const EmergencyContacts = () => {
           Verifying network...
         </div>
       ) : contacts.length === 0 ? (
-        <div className="card-apple" style={{ textAlign: 'center', padding: '120px 48px', border: 'none', background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(20px)' }}>
-          <div className="glass-dark" style={{ width: 120, height: 120, borderRadius: '50%', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.03)' }}>
+        <div className="card-apple glass-dark" style={{ textAlign: 'center', padding: '120px 48px' }}>
+          <div className="glass-dark" style={{ width: 120, height: 120, borderRadius: '50%', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Users size={56} color="#8e8e93" strokeWidth={1.5} />
           </div>
-          <h3 style={{ fontSize: 28, fontWeight: 500, color: '#1d1d1f', marginBottom: 12, letterSpacing: '-0.04em' }}>Your circle is empty</h3>
-          <p style={{ fontSize: 17, color: '#636366', maxWidth: 440, margin: '0 auto 32px', lineHeight: 1.6 }}>Add trusted partners who will act as your live security team. They'll receive instant alerts if you trigger SOS.</p>
-          <button onClick={openAddModal} className="btn-premium" style={{ padding: '14px 32px', background: '#1d1d1f', color: '#fff' }}>Enable Guard Tracking</button>
+          <h3 style={{ fontSize: 28, fontWeight: 500, color: '#f5f5f7', marginBottom: 12, letterSpacing: '-0.04em' }}>Your circle is empty</h3>
+          <p style={{ fontSize: 17, color: '#8e8e93', maxWidth: 440, margin: '0 auto 32px', lineHeight: 1.6 }}>Add trusted partners who will act as your live security team. They'll receive instant alerts if you trigger SOS.</p>
+          <button onClick={openAddModal} className="btn-premium glass-dark" style={{ padding: '14px 32px', background: '#f5f5f7', color: '#1d1d1f' }}>Enable Guard Tracking</button>
         </div>
       ) : (
         <div className="responsive-grid-1-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 24 }}>
           {contacts.map((c, i) => (
-            <div key={c._id} className="card-apple" style={{
+            <div key={c._id} className="card-apple glass-dark" style={{
               display: 'flex', gap: 24, alignItems: 'center', padding: '24px',
-              transition: 'all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1)',
-              border: '1px solid rgba(0,0,0,0.02)',
-              background: 'rgba(255,255,255,0.7)',
-              backdropFilter: 'blur(10px)'
+              transition: 'all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1)'
             }}>
               <div style={{
                 width: 80, height: 80, borderRadius: 24,
@@ -216,7 +213,7 @@ const EmergencyContacts = () => {
 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <h4 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: '#1d1d1f', letterSpacing: '-0.03em' }}>{c.name}</h4>
+                  <h4 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: '#f5f5f7', letterSpacing: '-0.03em' }}>{c.name}</h4>
                   <span style={{
                     fontSize: 10, fontWeight: 600, color: relationColor(c.relation),
                     background: `${relationColor(c.relation)}10`, padding: '4px 10px', borderRadius: 8,
@@ -224,7 +221,7 @@ const EmergencyContacts = () => {
                   }}>{c.relation?.toUpperCase()}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#636366', fontSize: 14, fontWeight: 600 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#8e8e93', fontSize: 14, fontWeight: 600 }}>
                     <Phone size={14} color={relationColor(c.relation)} strokeWidth={2.5} /> {c.phone}
                   </div>
                   {c.email && (

@@ -28,7 +28,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#fbfbfd] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        <div className="min-h-screen theme-dark flex flex-col items-center justify-center p-6 relative overflow-hidden">
             {/* Premium Background Meshes */}
             <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-accent/5 rounded-full blur-[140px] pointer-events-none"></div>
             <div className="absolute bottom-[-5%] left-[-5%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>

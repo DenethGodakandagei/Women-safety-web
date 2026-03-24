@@ -34,7 +34,7 @@ const BentoGrid = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="md:col-span-8 md:row-span-2 glass rounded-[60px] p-16 flex flex-col justify-between relative overflow-hidden group border-white/40 bg-white/70 shadow-2xl"
+            className="md:col-span-8 md:row-span-2 glass rounded-[60px] p-16 flex flex-col justify-between relative overflow-hidden group border-white/10 bg-white/5 shadow-2xl"
           >
             <div className="absolute top-0 right-0 w-full h-full opacity-[0.03] pointer-events-none transform translate-x-20 -translate-y-20 scale-150 group-hover:scale-[1.55] transition-transform duration-1000">
                <Globe size={800} strokeWidth={0.5} />
@@ -83,11 +83,11 @@ const BentoGrid = () => {
              
              <div className="flex -space-x-4 mb-8">
                {[1, 2, 3].map(i => (
-                 <div key={i} className="w-20 h-20 rounded-full border-[6px] border-white shadow-2xl relative overflow-hidden group-hover:scale-105 transition-transform duration-500 hover:z-30">
+                 <div key={i} className="w-20 h-20 rounded-full border-[6px] border-[#1c1c1e] shadow-2xl relative overflow-hidden group-hover:scale-105 transition-transform duration-500 hover:z-30">
                    <img src={`/avatars/avatar${i}.png`} alt="Member" className="w-full h-full object-cover" />
                  </div>
                ))}
-               <div className="w-20 h-20 rounded-full border-[6px] border-white shadow-2xl bg-[#1d1d1f] flex items-center justify-center text-white font-bold text-xl relative group-hover:scale-105 transition-transform duration-500">
+               <div className="w-20 h-20 rounded-full border-[6px] border-[#1c1c1e] shadow-2xl bg-[#1d1d1f] flex items-center justify-center text-white font-bold text-xl relative group-hover:scale-105 transition-transform duration-500">
                   +12
                </div>
              </div>

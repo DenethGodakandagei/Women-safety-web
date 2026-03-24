@@ -52,13 +52,13 @@ const sevInfo  = (val) => SEVERITY_LEVELS.find(s => s.value === val) || SEVERITY
 
 // ─── EMPTY STATE ──────────────────────────────────────────────────────────────
 const EmptyState = ({ onAdd }) => (
-  <div className="card-apple" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 48px', textAlign: 'center', gap: 28, background: 'rgba(255,255,255,0.3)', backdropFilter: 'blur(30px)' }}>
-    <div className="glass-dark" style={{ width: 120, height: 120, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 59, 48, 0.03)' }}>
-      <MapPin size={56} color="#ff3b30" className="animate-float" strokeWidth={1.5} />
+  <div className="card-apple glass-dark" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 48px', textAlign: 'center', gap: 28, background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(30px)' }}>
+    <div className="glass-dark" style={{ width: 120, height: 120, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 69, 58, 0.15)' }}>
+      <MapPin size={56} color="#ff453a" className="animate-float" strokeWidth={1.5} />
     </div>
     <div style={{ maxWidth: 360 }}>
-      <h3 style={{ fontSize: 28, fontWeight: 500, color: '#1d1d1f', margin: '0 0 12px', letterSpacing: '-0.04em' }}>Community Safety</h3>
-      <p style={{ fontSize: 17, color: '#636366', margin: 0, fontWeight: 500, lineHeight: 1.6 }}>Help your neighborhood stay informed by reporting local danger zones or safety hazards.</p>
+      <h3 style={{ fontSize: 28, fontWeight: 500, color: '#f5f5f7', margin: '0 0 12px', letterSpacing: '-0.04em' }}>Community Safety</h3>
+      <p style={{ fontSize: 17, color: '#8e8e93', margin: 0, fontWeight: 500, lineHeight: 1.6 }}>Help your neighborhood stay informed by reporting local danger zones or safety hazards.</p>
     </div>
     <button onClick={onAdd} className="btn-premium btn-premium-active animate-pulse-subtle" style={{ padding: '16px 40px', fontSize: 16 }}>
       <Plus size={20}/> Report New Incident
@@ -82,14 +82,14 @@ const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) =
   };
 
   return (
-    <div className="card-apple group" style={{
+    <div className="card-apple glass-dark group" style={{
       display: 'flex',
       flexDirection: 'column',
       gap: 16,
-      background: 'rgba(255, 255, 255, 0.95)',
+      background: 'rgba(255, 255, 255, 0.03)',
       backdropFilter: 'blur(30px)',
-      border: '1px solid rgba(255, 255, 255, 0.7)',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.03)',
+      border: '1px solid rgba(255, 255, 255, 0.05)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
       padding: '20px',
       transition: 'all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1)',
       position: 'relative',
@@ -102,12 +102,12 @@ const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) =
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-               <span style={{ fontSize: 9, fontWeight: 800, color: s.color, textTransform: 'uppercase', letterSpacing: '0.08em', background: `${s.color}12`, padding: '3px 10px', borderRadius: 8 }}>{s.label} Severity</span>
+               <span style={{ fontSize: 9, fontWeight: 800, color: s.color, textTransform: 'uppercase', letterSpacing: '0.08em', background: `${s.color}15`, padding: '3px 10px', borderRadius: 8 }}>{s.label} Severity</span>
                {incident.status === 'resolved' && (
-                 <span style={{ fontSize: 9, fontWeight: 800, color: '#34c759', background: 'rgba(52,199,89,0.1)', padding: '3px 10px', borderRadius: 8 }}>RESOLVED</span>
+                 <span style={{ fontSize: 9, fontWeight: 800, color: '#30d158', background: 'rgba(48,209,88,0.15)', padding: '3px 10px', borderRadius: 8 }}>RESOLVED</span>
                )}
             </div>
-            <h3 style={{ fontSize: 20, fontWeight: 600, color: '#1d1d1f', margin: 0, letterSpacing: '-0.03em', lineHeight: 1.2, wordBreak: 'break-word' }}>{incident.title}</h3>
+            <h3 style={{ fontSize: 20, fontWeight: 600, color: '#f5f5f7', margin: 0, letterSpacing: '-0.03em', lineHeight: 1.2, wordBreak: 'break-word' }}>{incident.title}</h3>
           </div>
         </div>
         
@@ -131,13 +131,13 @@ const IncidentCard = ({ incident, currentUserId, onEdit, onDelete, onUpvote }) =
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 16, marginTop: 'auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 16, marginTop: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #f5f5f7, #e5e5e7)', border: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#1d1d1f', flexShrink: 0 }}>
+          <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #1c1c1e, #2c2c2e)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#f5f5f7', flexShrink: 0 }}>
             {incident.reportedBy?.name?.[0] || 'A'}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: 13, color: '#1d1d1f', fontWeight: 600 }}>{incident.anonymous ? 'Anonymous' : incident.reportedBy?.name}</span>
+            <span style={{ fontSize: 13, color: '#f5f5f7', fontWeight: 600 }}>{incident.anonymous ? 'Anonymous' : incident.reportedBy?.name}</span>
             <span style={{ fontSize: 11, color: '#8e8e93', fontWeight: 500 }}>{timeAgo(incident.createdAt)}</span>
           </div>
         </div>
@@ -309,32 +309,33 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
     fontFamily: 'inherit', 
     outline: 'none', 
     boxSizing: 'border-box', 
-    background: 'rgba(0,0,0,0.03)', 
-    color: '#1d1d1f',
+    background: 'rgba(255,255,255,0.05)', 
+    color: '#f5f5f7',
     fontWeight: 500,
-    transition: 'all 0.2s'
+    transition: 'all 0.2s',
+    border: '1px solid rgba(255,255,255,0.1)'
   };
   const labelStyle = { fontSize: 11, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, display: 'block' };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="card-apple" style={{ background: 'rgba(255,255,255,0.95)', borderRadius: 32, width: '100%', maxWidth: 640, maxHeight: '92vh', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.5)', padding: 0, boxShadow: '0 40px 100px rgba(0,0,0,0.15)' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="card-apple glass-dark" style={{ background: 'rgba(28,28,30,0.95)', borderRadius: 32, width: '100%', maxWidth: 640, maxHeight: '92vh', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.1)', padding: 0, boxShadow: '0 40px 100px rgba(0,0,0,0.4)' }}>
         {/* Modal header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '32px 32px 24px', position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div className="glass-dark" style={{ width: 56, height: 56, borderRadius: 20, background: isEdit ? 'rgba(0,0,0,0.03)' : 'rgba(255, 59, 48, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              {isEdit ? <Edit2 size={24} color="#1d1d1f" /> : <Siren size={24} color="#ff3b30" />}
+            <div className="glass-dark" style={{ width: 56, height: 56, borderRadius: 20, background: isEdit ? 'rgba(255,255,255,0.05)' : 'rgba(213, 50, 42, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {isEdit ? <Edit2 size={24} color="#f5f5f7" /> : <Siren size={24} color="#d5322a" />}
             </div>
             <div>
-              <h2 style={{ fontSize: 24, fontWeight: 500, color: '#1d1d1f', margin: '0', letterSpacing: '-0.04em' }}>{isEdit ? 'Update Details' : 'Report Incident'}</h2>
-              <p style={{ fontSize: 13, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Help other citizens stay safe.</p>
+              <h2 style={{ fontSize: 24, fontWeight: 500, color: '#f5f5f7', margin: '0', letterSpacing: '-0.04em' }}>{isEdit ? 'Update Details' : 'Report Incident'}</h2>
+              <p style={{ fontSize: 13, color: '#8e8e93', margin: '4px 0 0', fontWeight: 500 }}>Help other citizens stay safe.</p>
             </div>
           </div>
-          <button onClick={onClose} style={{ position: 'absolute', top: 32, right: 32, width: 40, height: 40, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.03)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1d1d1f' }}><X size={20}/></button>
+          <button onClick={onClose} style={{ position: 'absolute', top: 32, right: 32, width: 40, height: 40, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.05)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f5f5f7' }}><X size={20}/></button>
         </div>
 
         <form onSubmit={handleSubmit} style={{ padding: '0 32px 32px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {error && <div style={{ padding: '14px 18px', borderRadius: 14, background: 'rgba(255, 59, 48, 0.08)', color: '#ff3b30', fontSize: 14, fontWeight: 600, border: '1px solid rgba(255, 59, 48, 0.1)', display: 'flex', alignItems: 'center', gap: 10 }}><AlertCircle size={18} /> {error}</div>}
+          {error && <div style={{ padding: '14px 18px', borderRadius: 14, background: 'rgba(213, 50, 42, 0.08)', color: '#d5322a', fontSize: 14, fontWeight: 600, border: '1px solid rgba(213, 50, 42, 0.1)', display: 'flex', alignItems: 'center', gap: 10 }}><AlertCircle size={18} /> {error}</div>}
 
           {/* Title */}
           <div>
@@ -369,7 +370,7 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
               <input type="number" step="any" value={form.location.lng} onChange={e => setLoc('lng', e.target.value)} style={inp} placeholder="Longitude" required/>
             </div>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <button type="button" onClick={useMyLocation} disabled={locLoading} className="btn-premium full-width-mobile" style={{ flex: 1, padding: '14px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f', borderRadius: 16 }}>
+              <button type="button" onClick={useMyLocation} disabled={locLoading} className="btn-premium glass-dark full-width-mobile" style={{ flex: 1, padding: '14px', background: 'rgba(255,255,255,0.05)', color: '#f5f5f7', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)' }}>
                 {locLoading ? <Loader2 size={18} className="animate-spin" /> : <><NavigationIcon size={18} /> GPS</>}
               </button>
               <button type="button" onClick={() => setIsPicking(true)} className="btn-premium btn-premium-active full-width-mobile" style={{ flex: 1, padding: '14px', borderRadius: 16 }}>
@@ -385,8 +386,8 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
             </div>
           )}
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', fontSize: 15, color: '#1d1d1f', fontWeight: 600, padding: '20px', background: 'rgba(0,0,0,0.03)', borderRadius: 20 }}>
-            <input type="checkbox" checked={form.anonymous} onChange={e => updateField('anonymous', e.target.checked)} style={{ width: 24, height: 24, accentColor: '#ff3b30', borderRadius: 8 }}/>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', fontSize: 15, color: '#f5f5f7', fontWeight: 600, padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: 20, border: '1px solid rgba(255,255,255,0.1)' }}>
+            <input type="checkbox" checked={form.anonymous} onChange={e => updateField('anonymous', e.target.checked)} style={{ width: 24, height: 24, accentColor: '#d5322a', borderRadius: 8 }}/>
             Post report anonymously
           </label>
 
@@ -493,12 +494,12 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
       {/* Header */}
       <div className="responsive-flex-column" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <div className="glass-dark" style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(255, 59, 48, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Siren size={32} color="#ff3b30" />
+          <div className="glass-dark" style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(255, 69, 58, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Siren size={32} color="#ff453a" />
           </div>
           <div>
-            <h2 style={{ fontSize: 32, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: '0' }}>Incident Reports</h2>
-            <p style={{ fontSize: 16, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Crowdsourced safety alerts.</p>
+            <h2 style={{ fontSize: 32, fontWeight: 500, color: '#f5f5f7', letterSpacing: '-0.04em', margin: '0' }}>Incident Reports</h2>
+            <p style={{ fontSize: 16, color: '#8e8e93', margin: '4px 0 0', fontWeight: 500 }}>Crowdsourced safety alerts.</p>
           </div>
         </div>
         <button onClick={() => { setEditTarget(null); setPendingPick(null); setShowForm(true); }} className="btn-premium btn-premium-active animate-pulse-subtle full-width-mobile" style={{ padding: '14px 28px', fontSize: 15 }}>
@@ -515,21 +516,20 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
       )}
 
       {/* Filters bar */}
-      <div className="card-apple responsive-flex-column" style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 24px', background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)' }}>
-        <div className="glass-dark full-width-mobile" style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 280, borderRadius: 16, padding: '12px 20px', background: 'rgba(0,0,0,0.03)' }}>
+      <div className="card-apple glass-dark responsive-flex-column" style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 24px', background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="glass-dark full-width-mobile" style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 280, borderRadius: 16, padding: '12px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
           <Search size={20} color="#8e8e93" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search safety reports..." style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 15, color: '#1d1d1f', width: '100%', fontWeight: 500 }}/>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search safety reports..." style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 15, color: '#f5f5f7', width: '100%', fontWeight: 500 }}/>
         </div>
 
         <div className="full-width-mobile" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <select value={filterType} onChange={e => setFilterType(e.target.value)} className="btn-premium full-width-mobile" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(0,0,0,0.03)', border: 'none', fontSize: 14 }}>
-            <option value="">All Categories</option>
-            {INCIDENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+          <select value={filterType} onChange={e => setFilterType(e.target.value)} className="btn-premium glass-dark full-width-mobile" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 14, color: '#f5f5f7' }}>
+            <option value="" style={{ background: '#1c1c1e' }}>All Categories</option>
+            {INCIDENT_TYPES.map(t => <option key={t.value} value={t.value} style={{ background: '#1c1c1e' }}>{t.label}</option>)}
           </select>
-
-          <select value={filterSev} onChange={e => setFilterSev(e.target.value)} className="btn-premium full-width-mobile" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(0,0,0,0.03)', border: 'none', fontSize: 14 }}>
-            <option value="">All Severity</option>
-            {SEVERITY_LEVELS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          <select value={filterSev} onChange={e => setFilterSev(e.target.value)} className="btn-premium glass-dark full-width-mobile" style={{ appearance: 'none', padding: '12px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 14, color: '#f5f5f7' }}>
+            <option value="" style={{ background: '#1c1c1e' }}>All Severity</option>
+            {SEVERITY_LEVELS.map(s => <option key={s.value} value={s.value} style={{ background: '#1c1c1e' }}>{s.label}</option>)}
           </select>
 
           <button onClick={() => setMyOnly(m => !m)} className={`${myOnly ? 'btn-premium btn-premium-active' : 'btn-premium'} full-width-mobile`} style={{ padding: '12px 20px', fontSize: 14 }}>
@@ -545,9 +545,9 @@ const IncidentReporting = ({ currentUserId, onPickLocationMode, pickedLocation, 
             const count = incidents.filter(i => i.severity === sev).length;
             const s = sevInfo(sev);
             return count > 0 ? (
-              <div key={sev} className="glass-dark" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 18px', borderRadius: 14, background: 'rgba(255,255,255,0.6)', border: `1px solid ${s.color}15`, boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+              <div key={sev} className="glass-dark" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 18px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: `1px solid ${s.color}25`, boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, boxShadow: `0 0 12px ${s.color}a0`, animation: 'pulse-subtle 2s infinite' }}/>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#1d1d1f', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{count} {s.label}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#f5f5f7', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{count} {s.label}</span>
               </div>
             ) : null;
           })}

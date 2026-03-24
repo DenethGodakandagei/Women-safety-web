@@ -15,13 +15,19 @@ const app = express();
 // Log incoming to verify traffic
 app.use(morgan('dev'));
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://192.168.8.148:5173'],
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    process.env.CORS_ORIGIN || 'http://localhost:5173',
+    'http://10.10.30.102:5173'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static('public'));
 
 // Debug Log for all requests
 app.use((req, res, next) => {
@@ -65,7 +71,8 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.log('--- MongoDB Connected ---');
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- Server Running on 0.0.0.0:${PORT} ---`);
-    console.log(`--- Accessible via http://192.168.8.148:${PORT} ---`);
+    console.log(`--- Accessible via http://localhost:${PORT} ---`);
+    console.log(`--- Accessible via http://10.10.30.102:${PORT} ---`);
   });
 }).catch(err => {
   console.error('--- MongoDB Connection Error ---', err);

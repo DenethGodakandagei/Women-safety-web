@@ -72,7 +72,7 @@ const Hero = () => {
         >
           <div className="relative rounded-[60px] overflow-hidden shadow-[0_60px_120px_-30px_rgba(0,0,0,0.15)] border border-white/60 aspect-[4/5]">
             <img
-              src="/sheshield_hero_v2.jpg"
+              src="/hero.png"
               alt="SheShield Modern Concept"
               className="w-full h-full object-cover"
             />

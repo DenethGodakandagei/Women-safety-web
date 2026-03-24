@@ -79,40 +79,39 @@ const buildInfoWindowContent = (incident) => {
   })();
 
   return `
-    <div style="font-family:'Inter',system-ui,sans-serif;min-width:220px;max-width:280px;padding:4px 2px 2px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <div style="width:32px;height:32px;border-radius:8px;background:${t.color}18;display:flex;align-items:center;justify-content:center;color:${t.color};font-weight:900;font-size:16px">
+    <div style="font-family:'Inter',system-ui,sans-serif;min-width:220px;max-width:280px;padding:8px;background:#1c1c1e;color:#f5f5f7">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:36px;height:36px;border-radius:10px;background:${t.color}25;display:flex;align-items:center;justify-content:center;color:${t.color};font-weight:900;font-size:16px">
           ${t.markerText}
         </div>
         <div>
-          <div style="font-size:13px;font-weight:800;color:#1d1d1f;line-height:1.2">${incident.title}</div>
-          <div style="display:flex;gap:5px;margin-top:3px">
-            <span style="font-size:10px;font-weight:700;color:${t.color};background:${t.color}18;padding:2px 7px;border-radius:99px">${t.label}</span>
-            <span style="font-size:10px;font-weight:700;color:${s.color};padding:2px 7px;border-radius:99px;background:${s.color}18">${incident.severity?.toUpperCase()}</span>
+          <div style="font-size:14px;font-weight:700;color:#f5f5f7;line-height:1.2;letter-spacing:-0.02em">${incident.title}</div>
+          <div style="display:flex;gap:5px;margin-top:4px">
+            <span style="font-size:9px;font-weight:800;color:${t.color};background:${t.color}20;padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:0.04em">${t.label}</span>
+            <span style="font-size:9px;font-weight:800;color:${s.color};padding:2px 8px;border-radius:99px;background:${s.color}20;text-transform:uppercase;letter-spacing:0.04em">${incident.severity}</span>
           </div>
         </div>
       </div>
-      <p style="font-size:12px;color:#555;line-height:1.5;margin:0 0 8px;max-height:52px;overflow:hidden">${incident.description}</p>
-      ${incident.location?.address ? `<div style="font-size:11px;color:#86868b;margin-bottom:6px;display:flex;align-items:center;gap:4px">📍 ${incident.location.address}</div>` : ''}
-      <div style="font-size:11px;color:#86868b;border-top:1px solid #f0f0f0;padding-top:6px;display:flex;justify-content:space-between;align-items:center">
-        <span>By <strong>${incident.reportedBy?.name || 'Anonymous'}</strong></span>
+      <p style="font-size:12px;color:#8e8e93;line-height:1.5;margin:0 0 12px;font-weight:500">${incident.description}</p>
+      ${incident.location?.address ? `<div style="font-size:11px;color:#8e8e93;margin-bottom:8px;display:flex;align-items:center;gap:6px;font-weight:500">📍 ${incident.location.address}</div>` : ''}
+      <div style="font-size:11px;color:#8e8e93;border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;display:flex;justify-content:space-between;align-items:center;font-weight:600">
+        <span>By <strong style="color:#f5f5f7">${incident.reportedBy?.name || 'Anonymous'}</strong></span>
         <span>${time} · 👍 ${incident.upvotes || 0}</span>
       </div>
-      ${incident.status === 'resolved' ? '<div style="margin-top:6px;font-size:11px;color:#22c55e;font-weight:600;display:flex;align-items:center;gap:4px">Check Resolved</div>' : ''}
     </div>
   `;
 };
 
 // ─── Legend ───────────────────────────────────────────────────────────────────
 const MapLegend = ({ filter, onFilter }) => (
-  <div className="card-apple" style={{ 
-    background: 'rgba(255,255,255,0.85)', 
-    backdropFilter: 'blur(20px)', 
+  <div className="card-apple glass-dark" style={{ 
+    background: 'rgba(28,28,30,0.85)', 
+    backdropFilter: 'blur(30px)', 
     borderRadius: 24, 
     padding: '24px', 
     width: '100%',
     maxWidth: 260,
-    border: '1px solid rgba(255,255,255,0.5)',
+    border: '1px solid rgba(255,255,255,0.1)',
     display: 'flex',
     flexDirection: 'column',
     gap: 16
@@ -122,8 +121,8 @@ const MapLegend = ({ filter, onFilter }) => (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <button 
           onClick={() => onFilter('')} 
-          className={!filter ? 'btn-premium btn-premium-active' : 'btn-premium'}
-          style={{ width: '100%', justifyContent: 'flex-start', padding: '10px 14px', background: !filter ? '#007aff' : 'rgba(0,0,0,0.03)', color: !filter ? '#fff' : '#1d1d1f' }}
+          className={!filter ? 'btn-premium btn-premium-active' : 'btn-premium glass-dark'}
+          style={{ width: '100%', justifyContent: 'flex-start', padding: '10px 14px', background: !filter ? '#007aff' : 'rgba(255,255,255,0.05)', color: !filter ? '#fff' : '#f5f5f7', border: !filter ? 'none' : '1px solid rgba(255,255,255,0.1)' }}
         >
           <MapPin size={16} /> <span style={{ fontSize: 13, fontWeight: 600 }}>Show All Reports</span>
         </button>
@@ -131,16 +130,17 @@ const MapLegend = ({ filter, onFilter }) => (
           <button 
             key={t.value} 
             onClick={() => onFilter(t.value === filter ? '' : t.value)} 
-            className={filter === t.value ? 'btn-premium btn-premium-active' : 'btn-premium'}
+            className={filter === t.value ? 'btn-premium btn-premium-active' : 'btn-premium glass-dark'}
             style={{ 
               width: '100%', 
               justifyContent: 'flex-start', 
               padding: '8px 14px', 
-              background: filter === t.value ? t.color : 'rgba(0,0,0,0.03)',
-              color: filter === t.value ? '#fff' : '#1d1d1f'
+              background: filter === t.value ? t.color : 'rgba(255,255,255,0.05)',
+              color: filter === t.value ? '#fff' : '#f5f5f7',
+              border: filter === t.value ? 'none' : '1px solid rgba(255,255,255,0.1)'
             }}
           >
-            <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+           <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {React.cloneElement(t.icon, { size: 16 })}
               <span style={{ fontSize: 13, fontWeight: 600 }}>{t.label}</span>
             </span>
@@ -155,8 +155,8 @@ const MapLegend = ({ filter, onFilter }) => (
       <select 
         value={filter} 
         onChange={(e) => onFilter(e.target.value)}
-        className="btn-premium"
-        style={{ width: '100%', appearance: 'none', padding: '12px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.03)', fontWeight: 600, fontSize: 14 }}
+        className="btn-premium glass-dark"
+        style={{ width: '100%', appearance: 'none', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', fontWeight: 600, fontSize: 14, color: '#f5f5f7', border: '1px solid rgba(255,255,255,0.1)' }}
       >
         <option value="">All Intel Layers</option>
         {INCIDENT_TYPES.map(t => (
@@ -165,15 +165,15 @@ const MapLegend = ({ filter, onFilter }) => (
       </select>
     </div>
     
-    <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 16 }}>
+    <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 16 }}>
       <p style={{ fontSize: 10, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.08em', margin: '0 0 12px', textTransform: 'uppercase' }}>Risk Indicators</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
         {Object.entries(SEVERITY_CONFIG).map(([sev, cfg]) => (
           <div key={sev} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: cfg.color, boxShadow: `0 0 0 3px ${cfg.ring}` }}/>
-            <span style={{ fontSize: 11, color: '#1d1d1f', fontWeight: 600, textTransform: 'capitalize' }}>{sev}</span>
+            <span style={{ fontSize: 11, color: '#f5f5f7', fontWeight: 600, textTransform: 'capitalize' }}>{sev}</span>
           </div>
-        ))}
+       ))}
       </div>
     </div>
   </div>
@@ -248,14 +248,26 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
           streetViewControl: false,
           fullscreenControl: true,
           styles: [
-            { featureType: 'poi',   elementType: 'labels', stylers: [{ visibility: 'off' }] },
-            { featureType: 'transit', stylers: [{ visibility: 'simplified' }] },
-            { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9e4f5' }] },
-            { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#f8f9fa' }] },
-            { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
-            { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#e8e8e8' }] },
+            { featureType: 'all', elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+            { featureType: 'all', elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+            { featureType: 'all', elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+            { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+            { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+            { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#263c3f' }] },
+            { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6b9a76' }] },
+            { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
+            { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] },
+            { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca5b3' }] },
+            { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#746855' }] },
+            { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2835' }] },
+            { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#f3d19c' }] },
+            { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#2f3948' }] },
+            { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+            { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] },
+            { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#515c6d' }] },
+            { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#17263c' }] },
           ],
-        });
+       });
 
         // Shared InfoWindow
         infoWindowRef.current = new mapsApi.InfoWindow({ maxWidth: 300 });
@@ -392,44 +404,44 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
             <MapIcon size={32} color="#007aff" />
           </div>
           <div>
-            <h2 style={{ fontSize: 32, fontWeight: 500, color: '#1d1d1f', letterSpacing: '-0.04em', margin: '0' }}>Safety Map</h2>
-            <p style={{ fontSize: 16, color: '#636366', margin: '4px 0 0', fontWeight: 500 }}>Live community-driven intelligence.</p>
+            <h2 style={{ fontSize: 32, fontWeight: 500, color: '#f5f5f7', letterSpacing: '-0.04em', margin: '0' }}>Safety Map</h2>
+            <p style={{ fontSize: 16, color: '#8e8e93', margin: '4px 0 0', fontWeight: 500 }}>Live community-driven intelligence.</p>
           </div>
-        </div>
+       </div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }} className="full-width-mobile">
           <button onClick={() => setShowRouteSearch(!showRouteSearch)} className={`${showRouteSearch ? 'btn-premium btn-premium-active' : 'btn-premium'} full-width-mobile`} style={{ padding: '12px 24px', fontSize: 14 }}>
             <NavigationIcon size={18} /> Plan Safe Route
           </button>
-          <button onClick={fetchIncidents} className="btn-premium full-width-mobile" style={{ padding: '12px 24px', background: 'rgba(0,0,0,0.03)', color: '#1d1d1f' }}>
+          <button onClick={fetchIncidents} className="btn-premium glass-dark full-width-mobile" style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.05)', color: '#f5f5f7', border: '1px solid rgba(255,255,255,0.1)' }}>
             <RefreshCcw size={18}/>
           </button>
-        </div>
+       </div>
       </div>
 
       {showRouteSearch && (
-        <div className="card-apple" style={{ padding: '24px', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)', border: 'none' }}>
-          <div className="responsive-grid-modal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 20, alignItems: 'flex-end', marginBottom: 24 }}>
+        <div className="card-apple glass-dark" style={{ padding: '32px', background: 'rgba(28,28,30,0.8)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 32px 64px rgba(0,0,0,0.4)' }}>
+          <div className="responsive-grid-modal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 24, alignItems: 'flex-end', marginBottom: 32 }}>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 600, color: '#8e8e93', display: 'block', marginBottom: 10, letterSpacing: '0.05em' }}>START POINT</label>
-              <div className="glass-dark" style={{ background: 'rgba(0,0,0,0.03)', padding: '14px 18px', borderRadius: 14, fontSize: 15, color: '#8e8e93', fontWeight: 600 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#8e8e93', display: 'block', marginBottom: 12, letterSpacing: '0.1em', textTransform: 'uppercase' }}>START POINT</label>
+              <div className="glass-dark" style={{ background: 'rgba(255,255,255,0.03)', padding: '16px 20px', borderRadius: 16, fontSize: 15, color: '#a1a1a6', fontWeight: 600, border: '1px solid rgba(255,255,255,0.05)' }}>
                 My Current Location
               </div>
             </div>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 600, color: '#8e8e93', display: 'block', marginBottom: 10, letterSpacing: '0.05em' }}>DESTINATION</label>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#8e8e93', display: 'block', marginBottom: 12, letterSpacing: '0.1em', textTransform: 'uppercase' }}>DESTINATION</label>
               <input 
                 placeholder="Where are you heading?" 
                 value={routeInput}
                 onChange={(e) => setRouteInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && setDestination(routeInput)}
                 className="glass-dark"
-                style={{ width: '100%', padding: '14px 18px', borderRadius: 14, border: 'none', background: 'rgba(0,0,0,0.03)', fontSize: 15, color: '#1d1d1f', outline: 'none', fontWeight: 600 }} 
+                style={{ width: '100%', padding: '16px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontSize: 15, color: '#f5f5f7', outline: 'none', fontWeight: 600 }} 
               />
             </div>
             <button 
               onClick={() => setDestination(routeInput)}
               className="btn-premium btn-premium-active full-width-mobile"
-              style={{ padding: '14px 32px', height: 52 }}
+              style={{ padding: '0 32px', height: 56, borderRadius: 16, fontSize: 15, fontWeight: 700, background: '#ff3b30', boxShadow: '0 8px 24px rgba(255, 59, 48, 0.3)' }}
             >
               Analyze Security
             </button>
@@ -442,16 +454,16 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
       {/* Stats bar */}
       <div className="responsive-grid-modal" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
         {[
-          { label: 'Intelligence Base', value: stats.total,    icon: <MapPin size={24}/>,      color: '#007aff', bg: 'rgba(0, 122, 255, 0.05)' },
-          { label: 'Active Reports',    value: stats.active,   icon: <Siren size={24}/>,       color: '#ff3b30', bg: 'rgba(255, 59, 48, 0.05)' },
-          { label: 'High Alert Zones',  value: stats.critical, icon: <AlertTriangle size={24}/>, color: '#ff9500', bg: 'rgba(255, 149, 0, 0.05)' },
+          { label: 'Intelligence Base', value: stats.total,    icon: <MapPin size={24}/>,      color: '#007aff', bg: 'rgba(0, 122, 255, 0.15)' },
+          { label: 'Active Reports',    value: stats.active,   icon: <Siren size={24}/>,       color: '#d5322a', bg: 'rgba(213, 50, 42, 0.15)' },
+          { label: 'High Alert Zones',  value: stats.critical, icon: <AlertTriangle size={24}/>, color: '#ff9f0a', bg: 'rgba(255, 159, 10, 0.15)' },
         ].map(s => (
-          <div key={s.label} className="card-apple" style={{ background: s.bg, padding: '20px 24px', border: 'none', display: 'flex', alignItems: 'center', gap: 18 }}>
-            <div className="glass-dark" style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)', color: s.color, flexShrink: 0 }}>
+          <div key={s.label} className="card-apple glass-dark" style={{ background: s.bg, padding: '20px 24px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 18, boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+            <div className="glass-dark" style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)', color: s.color, flexShrink: 0 }}>
               {s.icon}
             </div>
             <div>
-              <p style={{ fontSize: 26, fontWeight: 500, color: '#1d1d1f', margin: 0, lineHeight: 1, letterSpacing: '-0.02em' }}>{s.value}</p>
+              <p style={{ fontSize: 26, fontWeight: 500, color: '#f5f5f7', margin: 0, lineHeight: 1, letterSpacing: '-0.02em' }}>{s.value}</p>
               <p style={{ fontSize: 12, color: '#8e8e93', margin: '4px 0 0', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{s.label}</p>
             </div>
           </div>
@@ -466,8 +478,8 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
       )}
 
       {/* Map wrapper */}
-      <div className="map-wrapper" style={{ position: 'relative', borderRadius: 28, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.5)', height: 520 }}>
-        {/* Legend overlay */}
+      <div className="map-wrapper" style={{ position: 'relative', borderRadius: 28, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(28,28,30,0.5)', height: 520 }}>
+       {/* Legend overlay */}
         {showLegend && !isPickMode && (
           <div className="legend-container" style={{ position: 'absolute', top: 20, right: 20, zIndex: 11 }}>
             <MapLegend filter={filterType} onFilter={setFilterType}/>
@@ -478,11 +490,10 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
         <button
           onClick={() => setShowLegend(l => !l)}
           className="btn-premium glass-dark"
-          style={{ position: 'absolute', top: 20, left: 20, zIndex: 12, padding: '10px 18px', background: 'rgba(255,255,255,0.95)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+          style={{ position: 'absolute', top: 20, left: 20, zIndex: 12, padding: '10px 18px', background: 'rgba(28,28,30,0.95)', color: '#f5f5f7', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
         >
           {showLegend ? <><ChevronLeft size={16}/> Hide Filters</> : <><ChevronRight size={16}/> Show Filters</>}
         </button>
-
         {/* User location badge */}
         {userLocation && (
           <div className="animate-float" style={{ position: 'absolute', bottom: 20, left: 20, zIndex: 10, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', borderRadius: 99, background: 'rgba(0, 122, 255, 0.9)', color: '#fff', fontSize: 13, fontWeight: 600, boxShadow: '0 8px 24px rgba(0, 122, 255, 0.3)' }}>
@@ -520,11 +531,11 @@ const SafetyMap = ({ onMapClick, isPickMode }) => {
 
       {/* Incident type quick filter pills */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <button onClick={() => setFilterType('')} className={!filterType ? 'btn-premium btn-premium-active' : 'btn-premium'} style={{ padding: '10px 20px', fontSize: 13 }}>
+        <button onClick={() => setFilterType('')} className={!filterType ? 'btn-premium btn-premium-active' : 'btn-premium glass-dark'} style={{ padding: '10px 20px', fontSize: 13, background: !filterType ? '#007aff' : 'rgba(255,255,255,0.05)', color: !filterType ? '#fff' : '#f5f5f7', border: !filterType ? 'none' : '1px solid rgba(255,255,255,0.1)' }}>
           <MapIcon size={14}/> All Intel
         </button>
         {INCIDENT_TYPES.map(t => (
-          <button key={t.value} onClick={() => setFilterType(filterType === t.value ? '' : t.value)} className={filterType === t.value ? 'btn-premium btn-premium-active' : 'btn-premium'} style={{ padding: '10px 20px', fontSize: 13, background: filterType === t.value ? t.color : 'rgba(0,0,0,0.03)', color: filterType === t.value ? '#fff' : '#1d1d1f' }}>
+          <button key={t.value} onClick={() => setFilterType(filterType === t.value ? '' : t.value)} className={filterType === t.value ? 'btn-premium btn-premium-active' : 'btn-premium glass-dark'} style={{ padding: '10px 20px', fontSize: 13, background: filterType === t.value ? t.color : 'rgba(255,255,255,0.05)', color: filterType === t.value ? '#fff' : '#f5f5f7', border: filterType === t.value ? 'none' : '1px solid rgba(255,255,255,0.1)' }}>
             {t.icon} {t.label}
           </button>
         ))}

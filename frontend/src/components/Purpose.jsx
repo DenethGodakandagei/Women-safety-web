@@ -57,8 +57,8 @@ const Purpose = () => {
             transition={{ duration: 1.4, ease: [0.25, 1, 0.5, 1], delay: 0.2 }}
             className="relative"
           >
-            <div className="rounded-[80px] overflow-hidden shadow-[0_80px_160px_-40px_rgba(255,59,48,0.15)] bg-white/40 p-12 glass border-white/60">
-               <div className="aspect-[4/5] bg-gradient-to-tr from-[#f5f5f7] to-white rounded-[60px] flex items-center justify-center overflow-hidden group">
+            <div className="rounded-[80px] overflow-hidden shadow-[0_80px_160px_-40px_rgba(0,0,0,0.4)] bg-white/5 p-12 glass border-white/10">
+               <div className="aspect-[4/5] bg-gradient-to-tr from-[#1c1c1e] to-[#0a0a0c] rounded-[60px] flex items-center justify-center overflow-hidden group border border-white/5">
                   <div className="relative w-full h-full flex items-center justify-center">
                      <div className="absolute w-[150%] h-[150%] bg-accent/[0.05] blur-[150px] animate-pulse"></div>
                      <motion.div

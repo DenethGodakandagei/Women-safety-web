@@ -11,7 +11,7 @@ const AIPrediction = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
-            className="glass rounded-[60px] lg:rounded-[80px] p-10 lg:p-32 relative overflow-hidden bg-white/40 border-white/60 shadow-[0_80px_160px_-40px_rgba(0,0,0,0.1)]"
+            className="glass rounded-[60px] lg:rounded-[80px] p-10 lg:p-32 relative overflow-hidden bg-white/5 border-white/10 shadow-[0_80px_160px_-40px_rgba(0,0,0,0.3)]"
           >
             {/* Background Mesh - Technical Amber/Red Tones */}
             <div className="absolute top-0 right-[-10%] w-2/3 h-full bg-accent/[0.04] blur-[140px] pointer-events-none rounded-full"></div>

@@ -40,8 +40,8 @@ exports.triggerSOS = async (req, res) => {
     const liveLink = `${frontendUrl}/sos/track/${session._id}`;
     const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-    // 5. Compose message
-    const message =
+    // 5. Compose message (SMS)
+    const smsMessage =
       `🚨 EMERGENCY ALERT: ${user.name.toUpperCase()} 🚨\n\n` +
       `IMMEDIATE HELP NEEDED! I am in danger.\n\n` +
       `🛰️ TRACK MY LIVE MOVEMENT:\n${liveLink}\n\n` +
@@ -49,14 +49,50 @@ exports.triggerSOS = async (req, res) => {
       `Please respond or call emergency services.\n` +
       `– SheShield Safety Network`;
 
-    // 6. Send SMS to every contact
+    // 6. Compose HTML Message (Email)
+    const htmlMessage = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f7; padding: 40px 20px; line-height: 1.5; color: #1d1d1f;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid rgba(0,0,0,0.05);">
+          <!-- EMERGENCY HEADER -->
+          <div style="background-color: #ff3b30; padding: 20px; text-align: center;">
+            <p style="margin: 0; color: #ffffff; font-weight: 800; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase;">🚨 Emergency SOS Alert</p>
+          </div>
+          
+          <div style="padding: 40px;">
+            <p style="margin: 0 0 8px; color: #ff3b30; font-weight: 700; font-size: 16px;">CRITICAL RESPONSE NEEDED</p>
+            <h1 style="margin: 0 0 24px; font-size: 28px; font-weight: 700; letter-spacing: -0.04em;">${user.name} is in danger.</h1>
+            
+            <p style="margin-bottom: 32px; color: #636366; font-size: 16px; font-weight: 500;">
+              An immediate emergency signal has been triggered. Please follow the link below to track their live coordinates in real-time.
+            </p>
+
+            <!-- PRIMARY ACTION -->
+            <a href="${liveLink}" style="display: block; background-color: #ff3b30; color: #ffffff; text-decoration: none; text-align: center; padding: 18px 24px; border-radius: 12px; font-weight: 700; font-size: 17px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(255, 59, 48, 0.25);">
+              🚀 Track Live Movement
+            </a>
+
+            <!-- SECONDARY ACTION -->
+            <div style="text-align: center;">
+              <p style="margin: 0 0 12px; color: #8e8e93; font-size: 13px; font-weight: 600; text-transform: uppercase;">Backup Location</p>
+              <a href="${mapsLink}" style="color: #ff3b30; font-weight: 600; font-size: 15px;">📍 View on Google Maps</a>
+            </div>
+          </div>
+
+          <div style="background-color: #fafafa; padding: 24px; text-align: center; border-top: 1px solid #f0f0f0;">
+            <p style="margin: 0; color: #8e8e93; font-size: 12px; font-weight: 700;">Sent via SheShield Safety Network</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 7. Send SMS to every contact
     const smsResults = await Promise.allSettled(
       user.emergencyContacts.map((contact) =>
-        sendTextLKSms(contact.phone, message)
+        sendTextLKSms(contact.phone, smsMessage)
       )
     );
 
-    // 6. Send Email to every contact
+    // 8. Send Email to every contact
     const emailResults = await Promise.allSettled(
       user.emergencyContacts
         .filter((c) => c.email)
@@ -64,7 +100,8 @@ exports.triggerSOS = async (req, res) => {
           sendEmail({
             email: contact.email,
             subject: `🚨 EMERGENCY: ${user.name} 🚨`,
-            message,
+            message: smsMessage,
+            html: htmlMessage
           })
         )
     );

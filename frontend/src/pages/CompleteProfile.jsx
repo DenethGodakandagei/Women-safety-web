@@ -55,7 +55,7 @@ const CompleteProfile = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#fbfbfd] flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="min-h-screen theme-dark flex items-center justify-center p-6 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[100px] -ml-20 -mt-20"></div>
             
             <motion.div 

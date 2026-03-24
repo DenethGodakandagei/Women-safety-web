@@ -12,7 +12,7 @@ router.get('/logout', authController.logout);
 router.use(authController.protect);
 
 router.get('/me', userController.getMe);
-router.patch('/updateMe', userController.updateMe);
+router.patch('/updateMe', userController.uploadUserPhoto, userController.updateMe);
 
 // Emergency Contacts
 router.get('/getEmergencyContacts', userController.getEmergencyContacts);
