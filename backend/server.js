@@ -19,7 +19,7 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:5174',
     process.env.CORS_ORIGIN || 'http://localhost:5173',
-    'http://10.10.30.102:5173'
+    'http://192.168.8.148:5173'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
@@ -72,7 +72,7 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- Server Running on 0.0.0.0:${PORT} ---`);
     console.log(`--- Accessible via http://localhost:${PORT} ---`);
-    console.log(`--- Accessible via http://10.10.30.102:${PORT} ---`);
+    console.log(`--- Accessible via http://192.168.8.148:${PORT} ---`);
   });
 }).catch(err => {
   console.error('--- MongoDB Connection Error ---', err);
