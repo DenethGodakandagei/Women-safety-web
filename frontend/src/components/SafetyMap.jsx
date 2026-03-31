@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { loadGoogleMaps } from '../utils/googleMapsLoader';
 import { 
   Map as MapIcon, MapPin, AlertTriangle, Siren, RefreshCcw, 
   Flag, Navigation as NavigationIcon, Info, ChevronLeft, ChevronRight, Target,
@@ -6,7 +7,6 @@ import {
 } from 'lucide-react';
 import api from '../utils/api';
 import RouteAnalyzer from './RouteAnalyzer';
-
 
 const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -30,25 +30,6 @@ const SEVERITY_CONFIG = {
 };
 
 const typeInfo = val => INCIDENT_TYPES.find(t => t.value === val) || INCIDENT_TYPES[7];
-
-// ─── Load Google Maps script (singleton) ─────────────────────────────────────
-const loadGoogleMaps = () =>
-  new Promise((resolve, reject) => {
-    if (window.google?.maps) return resolve(window.google.maps);
-    const existing = document.getElementById('gmap-script');
-    if (existing) {
-      existing.addEventListener('load', () => resolve(window.google.maps));
-      return;
-    }
-    const script = document.createElement('script');
-    script.id    = 'gmap-script';
-    script.src   = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&libraries=geometry`;
-    script.async = true;
-    script.defer = true;
-    script.onload  = () => resolve(window.google.maps);
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
 
 // ─── Build SVG pin for a marker ───────────────────────────────────────────────
 const buildMarkerSVG = (color, size = 13) => {

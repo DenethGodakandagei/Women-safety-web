@@ -8,6 +8,7 @@ import IncidentReporting from '../components/IncidentReporting';
 import SafetyMap from '../components/SafetyMap';
 import RiskAnalysisCard from '../components/RiskAnalysisCard';
 import ProfileSettings from '../components/ProfileSettings';
+import LiveMapWidget from '../components/LiveMapWidget';
 import api from '../utils/api';
 
 import {
@@ -58,7 +59,7 @@ const ProgressBar = ({ value, color, max = 100 }) => (
 );
 
 // ─── Overview tab ─────────────────────────────────────────────────────────────
-const OverviewTab = ({ user, contacts, userLocation, stats, onSOS }) => {
+const OverviewTab = ({ user, contacts, userLocation, geoError, stats, onSOS }) => {
   const isSafe = stats.riskLevel === 'Safe' || stats.riskLevel === 'Low';
   const statusColor = isSafe ? '#34c759' : stats.riskLevel === 'Moderate' ? '#ff9500' : '#d5322a';
 
@@ -124,15 +125,20 @@ const OverviewTab = ({ user, contacts, userLocation, stats, onSOS }) => {
             </div>
           </div>
           <div style={{ background: '#1c1c1e', borderRadius: 20, height: 140, position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.1) 0.5px, transparent 0.5px)', backgroundSize: '16px 16px', opacity: 0.3 }} />
             {userLocation ? (
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#d5322a', border: '3px solid #1c1c1e', boxShadow: '0 0 15px rgba(213, 50, 42, 0.8)', animation: 'pulse-subtle 2s infinite' }} />
-                <p style={{ fontSize: 11, fontWeight: 600, color: '#d5322a', marginTop: 8, background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: 6, backdropFilter: 'blur(4px)' }}>USER_ACTIVE</p>
-              </div>
+              <LiveMapWidget userLocation={userLocation} />
             ) : (
-              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <NavigationIcon size={24} color="#8e8e93" className="animate-spin-slow" />
+              <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 20 }}>
+                <NavigationIcon size={24} color={geoError ? "#ff3b30" : "#8e8e93"} className={geoError ? "" : "animate-spin-slow"} />
+                {geoError ? (
+                  <p style={{ fontSize: 11, color: '#ff3b30', fontWeight: 600, textAlign: 'center', margin: 0 }}>
+                    {geoError}
+                  </p>
+                ) : (
+                  <p style={{ fontSize: 11, color: '#8e8e93', fontWeight: 500, textAlign: 'center', margin: 0 }}>
+                    Acquiring satellite signal...
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -310,6 +316,7 @@ const Dashboard = () => {
   const [pickMode, setPickMode] = useState(false);
   const [pickedLocation, setPickedLocation] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [geoError, setGeoError] = useState(null);
 
   const [sosState, setSosState] = useState('idle'); // idle | sending | sent | error
   const [sosMessage, setSosMessage] = useState('');
@@ -365,12 +372,48 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (navigator.geolocation) {
+      // Get initial position
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          console.log('[Dashboard] Initial location acquired');
+          setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setGeoError(null);
+        },
+        err => {
+          console.error('[Dashboard] initial pos err:', err);
+          let msg = "Location blocked.";
+          if (err.code === 1) msg = "Permission denied.";
+          if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+            msg = "Non-secure origin (HTTP). Geolocation requires HTTPS.";
+          }
+          setGeoError(msg);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+
       const watchId = navigator.geolocation.watchPosition(pos => {
         setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      }, (err) => console.error(err), { enableHighAccuracy: true });
+        setGeoError(null);
+      }, (err) => {
+        console.error('[Dashboard] watchPosition err:', err);
+      }, { 
+        enableHighAccuracy: true, 
+        maximumAge: 10000,
+        timeout: 15000 
+      });
       return () => navigator.geolocation.clearWatch(watchId);
+    } else {
+      setGeoError("Geolocation not supported by browser.");
     }
   }, []);
+
+  // Scroll main area to top on tab change
+  useEffect(() => {
+    const mainArea = document.querySelector('.main-scroll-area');
+    if (mainArea) {
+      mainArea.scrollTo(0, 0);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -492,9 +535,9 @@ const Dashboard = () => {
           </div>
 
           <Routes>
-            <Route path="overview" element={<OverviewTab user={user} contacts={contacts} userLocation={userLocation} stats={stats} onSOS={triggerSOS} />} />
+            <Route path="overview" element={<OverviewTab user={user} contacts={contacts} userLocation={userLocation} geoError={geoError} stats={stats} onSOS={triggerSOS} />} />
             <Route path="contacts" element={<EmergencyContacts />} />
-            <Route path="sos" element={<SOSTracker contacts={contacts} />} />
+            <Route path="sos" element={<SOSTracker contacts={contacts} userLocation={userLocation} geoError={geoError} />} />
             <Route path="incidents" element={
               <IncidentReporting
                 currentUserId={user?._id}
