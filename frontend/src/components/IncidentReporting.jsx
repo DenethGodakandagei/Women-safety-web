@@ -347,13 +347,13 @@ const IncidentForm = ({ incident, draft, pickedCoords, onClose, onSave, onPickLo
             <div>
               <label style={labelStyle}>Category</label>
               <select value={form.type} onChange={e => updateField('type', e.target.value)} style={{ ...inp, appearance: 'none', cursor: 'pointer' }}>
-                {INCIDENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                {INCIDENT_TYPES.map(t => <option key={t.value} value={t.value} style={{ background: '#1c1c1e' }}>{t.label}</option>)}
               </select>
             </div>
             <div>
               <label style={labelStyle}>Severity Level</label>
               <select value={form.severity} onChange={e => updateField('severity', e.target.value)} style={{ ...inp, appearance: 'none', cursor: 'pointer' }}>
-                {SEVERITY_LEVELS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                {SEVERITY_LEVELS.map(s => <option key={s.value} value={s.value} style={{ background: '#1c1c1e' }}>{s.label}</option>)}
               </select>
             </div>
           </div>

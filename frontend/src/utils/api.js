@@ -12,4 +12,17 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Handle unauthorized responses
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      console.warn('[API] Unauthorized access - clearing token');
+      localStorage.removeItem('token');
+      // You could also redirect here: window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

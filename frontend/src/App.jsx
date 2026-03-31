@@ -6,11 +6,13 @@ import Register from './pages/Register';
 import CompleteProfile from './pages/CompleteProfile';
 import Dashboard from './pages/Dashboard';
 import LiveTracker from './pages/LiveTracker';
+import ScrollToTop from './components/ScrollToTop';
 import './index.css';
 
 const App = () => {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

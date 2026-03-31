@@ -8,27 +8,10 @@ import api from '../utils/api';
 
 const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-// ── Load Google Maps script once ──────────────────────────────────────────────
-const loadGoogleMaps = () =>
-  new Promise((resolve, reject) => {
-    if (window.google?.maps) return resolve(window.google.maps);
-    const existing = document.getElementById('gmap-script');
-    if (existing) {
-      existing.addEventListener('load', () => resolve(window.google.maps));
-      return;
-    }
-    const script = document.createElement('script');
-    script.id = 'gmap-script';
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => resolve(window.google.maps);
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
+import { loadGoogleMaps } from '../utils/googleMapsLoader';
 
 // ── SOS Panel ─────────────────────────────────────────────────────────────────
-const SOSPanel = ({ location, contacts }) => {
+const SOSPanel = ({ location, contacts, geoError }) => {
   const [state, setState] = useState('idle'); // idle | counting | sending | sent | error
   const [countdown, setCountdown] = useState(5);
   const [result, setResult] = useState(null);
@@ -143,9 +126,19 @@ const SOSPanel = ({ location, contacts }) => {
                 <AlertTriangle size={18} /> Please add emergency contacts first.
               </div>
             )}
-            {!hasLocation && (
+            {!hasLocation && !geoError && (
               <div style={{ background: 'rgba(255, 59, 48, 0.08)', borderRadius: 14, padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#ff3b30', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <NavigationIcon size={18} className="animate-pulse" /> Acquiring high-precision GPS…
+              </div>
+            )}
+            {geoError && !hasLocation && (
+              <div style={{ background: 'rgba(213, 50, 42, 0.12)', borderRadius: 14, padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#d5322a', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <AlertTriangle size={18} /> {geoError}
+                </div>
+                <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(213, 50, 42, 0.8)', fontWeight: 500 }}>
+                  Manual override: Click anywhere on the map to set your current position.
+                </p>
               </div>
             )}
 
@@ -185,7 +178,22 @@ const SOSPanel = ({ location, contacts }) => {
           <div style={{ fontSize: 100, fontWeight: 500, lineHeight: 1, marginBottom: 8, letterSpacing: '-0.1em' }}>{countdown}</div>
           <p style={{ fontSize: 24, fontWeight: 500, margin: '0 0 8px' }}>Triggering SOS…</p>
           <p style={{ fontSize: 15, opacity: 0.9, marginBottom: 40, fontWeight: 500 }}>Sending coordinates to {contacts.length} guardians in {countdown}s</p>
-          <button onClick={cancelSOS} className="btn-premium glass" style={{ padding: '16px 40px', borderRadius: 16, border: '2px solid rgba(255,255,255,0.4)', color: '#fff' }}>
+          <button 
+            onClick={cancelSOS} 
+            style={{ 
+              marginTop: 40,
+              padding: '16px 40px', 
+              borderRadius: 16, 
+              border: '2px solid rgba(255,255,255,0.6)', 
+              background: 'rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(10px)',
+              color: '#fff',
+              fontSize: 15,
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
             ✕ STOP ALERT
           </button>
         </div>
@@ -295,6 +303,13 @@ const LiveMap = ({ location, onLocationUpdate }) => {
         fillColor: '#d5322a', fillOpacity: 0.15,
         strokeColor: '#d5322a', strokeOpacity: 0.3, strokeWeight: 1,
       });
+
+      mapObj.current.addListener('click', (e) => {
+        const lat = e.latLng.lat();
+        const lng = e.latLng.lng();
+        onLocationUpdate({ lat, lng, accuracy: 0 });
+        updateMapPosition(lat, lng);
+      });
     } catch (err) {
       setMapError('Google Maps failed to initialize.');
     }
@@ -385,11 +400,15 @@ const LiveMap = ({ location, onLocationUpdate }) => {
 };
 
 // ── Main export ───────────────────────────────────────────────────────────────
-const SOSTracker = ({ contacts = [] }) => {
-  const [location, setLocation] = useState({ lat: 0, lng: 0, accuracy: null });
+const SOSTracker = ({ contacts = [], userLocation, geoError }) => {
+  const [location, setLocation] = useState(userLocation || { lat: 0, lng: 0, accuracy: null });
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    if (userLocation) setLocation(userLocation);
+  }, [userLocation]);
+
+  useEffect(() => {
+    if (userLocation || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => setLocation({ lat: coords.latitude, lng: coords.longitude, accuracy: coords.accuracy }),
       () => { }
@@ -406,7 +425,7 @@ const SOSTracker = ({ contacts = [] }) => {
       </div>
 
       <div className="responsive-grid-1-1" style={{ display: 'grid', gridTemplateColumns: 'minmax(400px, 1fr) 1.5fr', gap: 24 }}>
-        <SOSPanel location={location} contacts={contacts} />
+        <SOSPanel location={location} contacts={contacts} geoError={geoError} />
         <LiveMap location={location} onLocationUpdate={setLocation} />
       </div>
     </div>
